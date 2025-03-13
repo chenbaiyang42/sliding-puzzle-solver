@@ -1,0 +1,628 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Sliding Puzzle Solver - Find the optimal solution">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+      <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+        <span class="block text-primary">Sliding Puzzle Solver</span>
+      </h1>
+      <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+        The <strong>Sliding Puzzle solver</strong> has challenged minds for generations. Our advanced solver uses sophisticated algorithms to find the optimal path to solve any sliding puzzle configuration, from the classic 15 puzzle to custom-sized challenges.
+      </p>
+    </div>
+
+    <!-- Solver Section -->
+    <div class="mt-12">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-8">Try Our Advanced Sliding Puzzle Solver</h2>
+      <div class="max-w-2xl mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <!-- Size Selection Controls -->
+          <div class="flex justify-center space-x-4 mb-6">
+            <div>
+              <label for="rows" class="block text-sm font-medium text-gray-700">Rows</label>
+              <select id="rows" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+              </select>
+            </div>
+            <div>
+              <label for="cols" class="block text-sm font-medium text-gray-700">Columns</label>
+              <select id="cols" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+              </select>
+            </div>
+          </div>
+          <div id="puzzle-grid" class="grid gap-2 mb-6 relative">
+            <!-- Grid will be populated by JavaScript -->
+          </div>
+
+          <!-- Controls -->
+          <div class="flex justify-center space-x-4">
+            <button
+              id="shuffle-btn"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Shuffle
+            </button>
+            <button
+              id="solve-btn"
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Solve
+            </button>
+            <button
+              id="reset-btn"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Reset
+            </button>
+            <button
+              id="speed-up-btn"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Speed Up
+            </button>
+            <button
+              id="speed-down-btn"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Slow Down
+            </button>
+          </div>
+        </div>
+
+        <!-- Solution Steps -->
+        <div id="solution-steps" class="mt-8 hidden">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Solution Steps</h2>
+          <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div id="steps-list" class="space-y-4">
+              <!-- Steps will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Getting Started Section -->
+    <div class="mt-16">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Getting Started with Sliding Puzzle Solver Solver</h2>
+      <div class="mt-10 max-w-3xl mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <h3 class="text-xl font-semibold text-gray-900 mb-4">Simple Steps to Your First Solution</h3>
+          <ol class="list-decimal pl-6 space-y-2">
+            <li>Choose your preferred puzzle size using our <strong>Sliding Puzzle solver</strong> interface</li>
+            <li>Enter your current puzzle configuration or use the shuffle feature</li>
+            <li>Click "Solve" and watch as our <strong>15 puzzle solver</strong> analyzes your puzzle</li>
+            <li>Follow the step-by-step solution provided by our <strong>Slide Puzzle solver</strong></li>
+            <li>Learn from the solution to improve your own solving techniques</li>
+          </ol>
+
+          <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Understanding the Controls</h3>
+          <ol class="list-decimal pl-6 space-y-2">
+            <li><strong>Shuffle:</strong> Randomly rearranges the puzzle pieces to create a new challenge</li>
+            <li><strong>Solve:</strong> Analyzes the current puzzle state and finds the optimal solution path</li>
+            <li><strong>Reset:</strong> Returns the puzzle to its initial solved state</li>
+            <li><strong>Speed Up:</strong> Increases the animation speed of the solution demonstration</li>
+            <li><strong>Slow Down:</strong> Decreases the animation speed of the solution demonstration</li>
+          </ol>
+          
+          <div class="mt-8 text-center">
+            <p class="text-lg text-gray-600">
+              Whether you're a puzzle enthusiast looking to improve your skills or simply need help with a challenging configuration, our <strong>Sliding Puzzle solver</strong> provides the perfect balance of assistance and education.
+            </p>
+            <p class="mt-4 text-lg text-gray-600">
+              Start using our powerful <strong>15 puzzle solver</strong> today and transform your puzzle-solving experience from frustration to fascination. Our <strong>Slide Puzzle solver</strong> is here to help you master any sliding puzzle challenge!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Understanding Section -->
+    <div class="mt-16">
+      <h2 class="text-3xl font-extrabold text-gray-900 mb-8">Understanding the Classic Sliding Puzzle Challenge</h2>
+      <div class="prose prose-lg max-w-none">
+        <p>The <strong>Sliding Puzzle solver</strong> has been a source of fascination and challenge for puzzle enthusiasts worldwide. From the classic 15 puzzle to modern digital versions, these brain teasers consist of numbered tiles in a frame that must be rearranged into the correct sequence by sliding them around the board. If you've ever found yourself stumped by these deceptively simple puzzles, our <strong>Slide Puzzle solver</strong> is the perfect solution to guide you through even the most challenging configurations.</p>
+        
+        <h3 class="text-2xl font-bold text-gray-900 mt-8">What Makes Sliding Puzzles So Enduringly Popular</h3>
+        <p>The <strong>15 puzzle solver</strong> and its variations combine simplicity with complexity in a uniquely engaging way. The rules are straightforward – slide tiles into the empty space to arrange them in order – but solving them requires spatial reasoning, pattern recognition, and strategic planning. The most famous variant, the <strong>15 puzzle solver</strong>, has been entertaining puzzle enthusiasts since the late 1800s, and our <strong>Sliding Puzzle solver</strong> brings this classic challenge into the modern era with advanced solving capabilities.</p>
+        
+        <h3 class="text-2xl font-bold text-gray-900 mt-8">Types of Sliding Puzzles You Can Solve with Our Tool</h3>
+        <p>Our comprehensive <strong>Sliding Puzzle solver</strong> supports multiple puzzle variations, making it the ultimate tool for puzzle enthusiasts:</p>
+        <ul class="list-disc pl-6">
+          <li>The classic <strong>15 puzzle solver</strong> (4×4 grid with numbers 1-15) - The most popular and challenging variant</li>
+          <li>8-puzzle (3×3 grid) - Perfect for beginners and quick solving sessions</li>
+          <li>Larger and custom-sized puzzles - For those seeking extra challenge</li>
+          <li>Picture <strong>Slide Puzzle solver</strong> options for photo-based challenges</li>
+          <li>Educational variants designed for learning mathematical concepts</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="mt-20">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">How Sliding Puzzle Solver Solver Works</h2>
+      <div class="mt-10">
+        <div class="space-y-10">
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
+                1
+              </div>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Advanced Algorithm Technology</h3>
+              <p class="mt-2 text-gray-500">
+                Our <strong>Sliding Puzzle solver</strong> employs sophisticated pathfinding algorithms that can tackle even the most complex puzzle configurations. Whether you're working with a classic <strong>15 puzzle solver</strong> or a custom-sized challenge, our solver analyzes your puzzle's current state and calculates the optimal sequence of moves.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
+                2
+              </div>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Easy-to-Use Interface</h3>
+              <p class="mt-2 text-gray-500">
+                Our <strong>Slide Puzzle solver</strong> features an intuitive interface that makes entering your puzzle state simple and straightforward. Whether you're working with a traditional <strong>15 puzzle solver</strong> challenge or a custom configuration, our tool adapts to your needs.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-start">
+            <div class="flex-shrink-0">
+              <div class="flex items-center justify-center h-12 w-12 rounded-md bg-primary text-white">
+                3
+              </div>
+            </div>
+            <div class="ml-4">
+              <h3 class="text-lg font-medium text-gray-900">Interactive Visualization</h3>
+              <p class="mt-2 text-gray-500">
+                Watch as our <strong>Sliding Puzzle solver</strong> demonstrates each move in real-time, helping you understand the solution process and learn techniques for future puzzles. This interactive approach makes learning and solving more engaging and effective.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Benefits Section -->
+    <div class="mt-20">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Benefits of Using Sliding Puzzle Solver Solver</h2>
+      <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="text-lg font-medium text-gray-900">Learn Advanced Techniques</div>
+          <p class="mt-2 text-gray-500">
+            Our <strong>Sliding Puzzle solver</strong> provides detailed solutions that help you understand the strategic approaches used by puzzle masters. Whether you're using the <strong>15 puzzle solver</strong> or other variants, you'll develop better solving techniques.
+          </p>
+        </div>
+
+        <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="text-lg font-medium text-gray-900">Overcome Impossible Configurations</div>
+          <p class="mt-2 text-gray-500">
+            Our <strong>Slide Puzzle solver</strong> can determine whether a configuration is truly solvable and provide the solution when possible. This feature is particularly useful for the <strong>15 puzzle solver</strong> where some configurations are mathematically impossible to solve.
+          </p>
+        </div>
+
+        <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="text-lg font-medium text-gray-900">Enhance Problem-Solving Skills</div>
+          <p class="mt-2 text-gray-500">
+            Regular use of our <strong>Sliding Puzzle solver</strong> helps improve spatial reasoning and sequential thinking abilities. The <strong>15 puzzle solver</strong> and other variants provide excellent practice for developing these cognitive skills.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Educational Value Section -->
+    <div class="mt-20">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Educational Value of Sliding Puzzle Solver Solver</h2>
+      <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2">
+        <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="text-lg font-medium text-gray-900">Mathematical Concepts</div>
+          <p class="mt-2 text-gray-500">
+            Our <strong>Sliding Puzzle solver</strong> introduces important mathematical concepts like permutation groups and parity. The <strong>15 puzzle solver</strong> is particularly effective for teaching these abstract concepts through hands-on problem-solving.
+          </p>
+        </div>
+
+        <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="text-lg font-medium text-gray-900">Cognitive Development</div>
+          <p class="mt-2 text-gray-500">
+            Using our <strong>Slide Puzzle solver</strong> regularly improves working memory, visual-spatial reasoning, and concentration. The <strong>15 puzzle solver</strong> and other variants provide excellent practice for developing these valuable cognitive skills.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+<script type="module">
+  import { NPuzzleSolver } from '/js/NPuzzleSolver.js';
+  
+  // 拼图状态管理
+  let rows = 4;
+  let cols = 4;
+  let puzzle = [];
+  let emptyIndex = -1;
+  let selectedIndex = null;
+  let tileSize = 0; // Store tile size for animations
+  let animationDelay = 200; // Initial animation delay in ms
+  
+  // 获取页面上的关键DOM元素
+  const grid = document.getElementById('puzzle-grid');
+  const shuffleBtn = document.getElementById('shuffle-btn');
+  const solveBtn = document.getElementById('solve-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const speedUpBtn = document.getElementById('speed-up-btn');
+  const speedDownBtn = document.getElementById('speed-down-btn');
+  const solutionSteps = document.getElementById('solution-steps');
+  const stepsList = document.getElementById('steps-list');
+  const rowsSelect = document.getElementById('rows');
+  const colsSelect = document.getElementById('cols');
+
+  // 初始化拼图
+  function initializePuzzle() {
+    console.group('Puzzle Initialization');
+    const totalTiles = rows * cols;
+    puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+    emptyIndex = totalTiles - 1;
+    console.log('Initial puzzle state:', puzzle);
+    console.log('Grid dimensions:', { rows, cols });
+    updateGrid();
+    initializeGrid();
+    console.groupEnd();
+  }
+
+  // 更新网格布局
+  function updateGrid() {
+    // Calculate tile size based on grid width and number of columns
+    const gridWidth = grid.offsetWidth;
+    tileSize = (gridWidth - (cols - 1) * 8) / cols; // 8px is the gap size
+    grid.style.height = `${rows * tileSize + (rows - 1) * 8}px`; // Set grid height
+  }
+
+  // 初始化拼图网格
+  function initializeGrid() {
+    grid.innerHTML = '';
+    puzzle.forEach((num, index) => {
+      const tile = document.createElement('div');
+      tile.className = 'absolute bg-primary text-white flex items-center justify-center text-2xl font-bold rounded cursor-pointer hover:bg-primary/90 transition-all duration-200';
+      
+      // Calculate position
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      const top = row * (tileSize + 8); // 8px gap
+      const left = col * (tileSize + 8);
+      
+      tile.style.width = `${tileSize}px`;
+      tile.style.height = `${tileSize}px`;
+      tile.style.transform = `translate(${left}px, ${top}px)`;
+      
+      // 如果是空白格子，添加特殊样式
+      if (num === 0) {
+        tile.classList.remove('bg-primary');
+        tile.classList.add('bg-transparent');
+        tile.classList.remove('text-white');
+        tile.classList.remove('hover:bg-primary/90');
+      }
+      
+      // 如果当前拼图块被选中，添加高亮样式
+      if (index === selectedIndex) {
+        tile.classList.add('ring-4', 'ring-yellow-400');
+      }
+      
+      // 设置拼图块的文本（空白块显示为空）
+      tile.textContent = num === 0 ? '' : num;
+      
+      tile.dataset.index = index;
+      tile.dataset.number = num;
+      
+      // 为所有格子添加点击事件
+      tile.addEventListener('click', () => handleTileClick(index));
+      
+      grid.appendChild(tile);
+    });
+  }
+
+  // 处理拼图块点击
+  function handleTileClick(index) {
+    console.group('Tile Click');
+    console.log('Clicked tile index:', index);
+    
+    // 如果已经有选中的拼图块
+    if (selectedIndex !== null) {
+      // 如果点击的是同一个拼图块，取消选中
+      if (selectedIndex === index) {
+        selectedIndex = null;
+        console.log('Deselected tile');
+        initializeGrid();
+        console.groupEnd();
+        return;
+      }
+      
+      // 交换位置
+      [puzzle[selectedIndex], puzzle[index]] = [puzzle[index], puzzle[selectedIndex]];
+      console.log('Swapped tiles:', selectedIndex, index);
+      
+      // 更新空格位置
+      if (puzzle[selectedIndex] === 0) {
+        emptyIndex = selectedIndex;
+      } else if (puzzle[index] === 0) {
+        emptyIndex = index;
+      }
+      
+      // 清除选中状态
+      selectedIndex = null;
+      initializeGrid();
+    } else {
+      // 如果没有选中的拼图块，将当前点击的拼图块设为选中状态
+      selectedIndex = index;
+      console.log('Selected tile:', index);
+      initializeGrid();
+    }
+    
+    console.groupEnd();
+  }
+
+  // 检查两个位置是否相邻
+  function isAdjacent(pos1, pos2) {
+    const row1 = Math.floor(pos1 / cols);
+    const col1 = pos1 % cols;
+    const row2 = Math.floor(pos2 / cols);
+    const col2 = pos2 % cols;
+    return (Math.abs(row1 - row2) === 1 && col1 === col2) ||
+           (Math.abs(col1 - col2) === 1 && row1 === row2);
+  }
+
+  // 获取可能的移动
+  function getPossibleMoves(state, emptyPos) {
+    const moves = [];
+    const row = Math.floor(emptyPos / cols);
+    const col = emptyPos % cols;
+    
+    if (row > 0) moves.push(emptyPos - cols); // 上
+    if (row < rows - 1) moves.push(emptyPos + cols); // 下
+    if (col > 0) moves.push(emptyPos - 1); // 左
+    if (col < cols - 1) moves.push(emptyPos + 1); // 右
+    
+    return moves;
+  }
+
+  // 打乱拼图
+  function shuffle() {
+    // Reset puzzle to initial state first
+    const totalTiles = rows * cols;
+    puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+    emptyIndex = totalTiles - 1;
+    
+    // Perform random moves
+    for (let i = 0; i < 1000; i++) {
+      const possibleMoves = getPossibleMoves(puzzle, emptyIndex);
+      const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+      
+      // Swap positions
+      puzzle[emptyIndex] = puzzle[randomMove];
+      puzzle[randomMove] = 0;
+      emptyIndex = randomMove;
+    }
+    
+    // Update the grid display
+    initializeGrid();
+  }
+
+  function create2dArray(array, size) {
+    let result = [];
+    for (let i = 0; i < array.length; i++) {
+      if (i % size === 0) {
+        result.push([]);
+      }
+      result[Math.floor(i / size)][i % size] = array[i] === 0 ? '' : array[i];
+    }
+    return result;
+  }
+
+  // 求解拼图
+  function solve() {
+    console.group('Puzzle Solving Process');
+    console.log('Current puzzle state:', puzzle);
+    console.log('Grid dimensions:', { rows, cols });
+    
+    const grid = create2dArray(puzzle, cols);
+    console.log('Created 2D grid:', grid);
+    
+    // 创建求解器实例
+    const solver = new NPuzzleSolver(grid);
+    console.log('Solver created');
+
+    const solution = solver.solve();
+    console.log('Solution found:', solution);
+
+    if (!solution) {
+      console.error('No solution found!');
+      alert('无法找到解决方案!');
+      console.groupEnd();
+      return;
+    }
+
+    // 将解决方案转换为步骤列表
+    const steps = solution.map(move => {
+      const pieceNum = move.number
+      let direction = '';
+      
+      // 确定移动方向
+      if (move.empty.y < move.piece.y) direction = 'down';
+      else if (move.empty.y > move.piece.y) direction = 'up';
+      else if (move.empty.x < move.piece.x) direction = 'left';
+      else if (move.empty.x > move.piece.x) direction = 'right';
+
+      return {
+        moved: pieceNum,
+        direction: direction
+      };
+    });
+
+    console.log('Solution steps:', steps);
+    console.groupEnd();
+    displaySolution(steps);
+    executeSolution(solution);
+  }
+
+  // 执行解决方案动画
+  async function executeSolution(solution) {
+    // 禁用按钮，防止动画执行过程中用户交互
+    shuffleBtn.disabled = true;
+    solveBtn.disabled = true;
+    rowsSelect.disabled = true;
+    colsSelect.disabled = true;
+
+    // 遍历每个步骤
+    for (const move of solution) {
+      // 获取要移动的数字和位置
+      const pieceNum = move.number;
+      const piecePos = move.piece;
+      const emptyPos = move.empty;
+
+      // 计算在一维数组中的索引
+      const pieceIndex = piecePos.y * cols + piecePos.x;
+      const emptyIndex = emptyPos.y * cols + emptyPos.x;
+
+      // 更新puzzle数组
+      puzzle[emptyIndex] = pieceNum;
+      puzzle[pieceIndex] = 0; // 使用0表示空格
+
+      // 获取需要移动的tile元素
+      const tiles = grid.children;
+      let tileToMove;
+      for (const tile of tiles) {
+        if (parseInt(tile.dataset.number) === pieceNum) {
+          tileToMove = tile;
+          break;
+        }
+      }
+
+      if (tileToMove) {
+        // 计算新位置
+        const newRow = Math.floor(emptyIndex / cols);
+        const newCol = emptyIndex % cols;
+        const newTop = newRow * (tileSize + 8);
+        const newLeft = newCol * (tileSize + 8);
+
+        // 应用动画，只移动有数字的方块
+        if (pieceNum !== 0) {  // 确保不是空白方块
+          tileToMove.style.transform = `translate(${newLeft}px, ${newTop}px)`;
+          // 等待动画完成
+          await new Promise(resolve => setTimeout(resolve, animationDelay));
+        }
+      }
+    }
+
+    // 动画完成后重新初始化网格以确保状态正确
+    initializeGrid();
+
+    // 动画完成后重新启用按钮
+    shuffleBtn.disabled = false;
+    solveBtn.disabled = false;
+    rowsSelect.disabled = false;
+    colsSelect.disabled = false;
+  }
+
+  // 显示解决方案
+  function displaySolution(steps) {
+    solutionSteps.classList.remove('hidden');
+    stepsList.innerHTML = '';
+    
+    let solutionText = `${steps.length} steps in total:\n\n`;
+    
+    steps.forEach((step, index) => {
+      solutionText += `${index + 1}. Move ${step.moved}\n`;
+    });
+    
+    const textArea = document.createElement('textarea');
+    textArea.value = solutionText;
+    textArea.className = 'w-full h-64 font-mono p-4 border rounded';
+    textArea.readOnly = true;
+    
+    const copyButton = document.createElement('button');
+    copyButton.textContent = 'Copy Solution';
+    copyButton.className = 'mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary';
+    copyButton.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(solutionText);
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => {
+          copyButton.textContent = 'Copy Solution';
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy solution to clipboard');
+      }
+    };
+    
+    stepsList.appendChild(textArea);
+    stepsList.appendChild(copyButton);
+  }
+
+  // 重置拼图到初始状态
+  function reset() {
+    const totalTiles = rows * cols;
+    puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+    emptyIndex = totalTiles - 1;
+    selectedIndex = null;
+    initializeGrid();
+  }
+
+  // 事件监听器
+  shuffleBtn.addEventListener('click', shuffle);
+  solveBtn.addEventListener('click', solve);
+  resetBtn.addEventListener('click', reset);
+  
+  // 添加速度控制按钮的事件监听器
+  speedUpBtn.addEventListener('click', () => {
+    animationDelay = Math.max(100, animationDelay - 100);
+    speedUpBtn.textContent = `Speed Up (${animationDelay}ms)`;
+  });
+  
+  speedDownBtn.addEventListener('click', () => {
+    animationDelay += 100;
+    speedDownBtn.textContent = `Slow Down (${animationDelay}ms)`;
+  });
+  
+  // 初始化按钮文本
+  speedUpBtn.textContent = `Speed Up (${animationDelay}ms)`;
+  speedDownBtn.textContent = `Slow Down (${animationDelay}ms)`;
+  
+  // 监听大小变化
+  rowsSelect.addEventListener('change', (e) => {
+    rows = parseInt(e.target.value);
+    initializePuzzle();
+  });
+  
+  colsSelect.addEventListener('change', (e) => {
+    cols = parseInt(e.target.value);
+    initializePuzzle();
+  });
+
+  // 初始化
+  initializePuzzle();
+  
+  // 添加窗口大小改变事件监听器以更新tile大小
+  window.addEventListener('resize', () => {
+    updateGrid();
+    initializeGrid();
+  });
+</script>

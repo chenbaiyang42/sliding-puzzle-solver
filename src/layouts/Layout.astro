@@ -1,0 +1,43 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Sliding Puzzle Solver - Find the optimal solution for your sliding puzzle game" } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body class="min-h-screen bg-gray-50">
+    <header class="bg-white shadow-sm">
+      <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16">
+          <div class="flex">
+            <div class="flex-shrink-0 flex items-center">
+              <a href="/" class="text-2xl font-bold text-primary">Sliding Puzzle Solver</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="bg-white border-t">
+      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <p class="text-center text-gray-500 text-sm">
+          © {new Date().getFullYear()} Sliding Puzzle Solver. All rights reserved.
+        </p>
+      </div>
+    </footer>
+  </body>
+</html> 

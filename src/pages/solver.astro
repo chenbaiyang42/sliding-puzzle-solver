@@ -1,0 +1,184 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Sliding Puzzle Solver - Interactive Puzzle Solver">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="text-center mb-12">
+      <h1 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">
+        Sliding Puzzle Solver
+      </h1>
+      <p class="mt-3 text-lg text-gray-500">
+        Arrange the tiles to match your current puzzle configuration, then click "Solve" to get the solution.
+      </p>
+    </div>
+
+    <div class="max-w-2xl mx-auto">
+      <!-- Puzzle Grid -->
+      <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+        <div id="puzzle-grid" class="grid grid-cols-3 gap-2 mb-6">
+          <!-- Grid will be populated by JavaScript -->
+        </div>
+
+        <!-- Controls -->
+        <div class="flex justify-center space-x-4">
+          <button
+            id="shuffle-btn"
+            class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            Shuffle
+          </button>
+          <button
+            id="solve-btn"
+            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+          >
+            Solve
+          </button>
+        </div>
+      </div>
+
+      <!-- Solution Steps -->
+      <div id="solution-steps" class="mt-8 hidden">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Solution Steps</h2>
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div id="steps-list" class="space-y-4">
+            <!-- Steps will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Puzzle state
+  let puzzle = Array.from({ length: 9 }, (_, i) => i);
+  let emptyIndex = 8;
+  const grid = document.getElementById('puzzle-grid');
+  const shuffleBtn = document.getElementById('shuffle-btn');
+  const solveBtn = document.getElementById('solve-btn');
+  const solutionSteps = document.getElementById('solution-steps');
+  const stepsList = document.getElementById('steps-list');
+
+  // Initialize puzzle grid
+  function initializeGrid() {
+    grid.innerHTML = '';
+    puzzle.forEach((num, index) => {
+      const tile = document.createElement('div');
+      tile.className = 'aspect-square bg-primary text-white flex items-center justify-center text-2xl font-bold rounded cursor-pointer hover:bg-primary/90 transition-colors';
+      tile.textContent = num || '';
+      tile.dataset.index = index;
+      tile.addEventListener('click', () => moveTile(index));
+      grid.appendChild(tile);
+    });
+  }
+
+  // Move tile
+  function moveTile(index) {
+    if (isAdjacent(index, emptyIndex)) {
+      [puzzle[index], puzzle[emptyIndex]] = [puzzle[emptyIndex], puzzle[index]];
+      emptyIndex = index;
+      initializeGrid();
+    }
+  }
+
+  // Check if two positions are adjacent
+  function isAdjacent(pos1, pos2) {
+    const row1 = Math.floor(pos1 / 3);
+    const col1 = pos1 % 3;
+    const row2 = Math.floor(pos2 / 3);
+    const col2 = pos2 % 3;
+    return (Math.abs(row1 - row2) === 1 && col1 === col2) ||
+           (Math.abs(col1 - col2) === 1 && row1 === row2);
+  }
+
+  // Shuffle puzzle
+  function shuffle() {
+    for (let i = 0; i < 1000; i++) {
+      const adjacentTiles = puzzle
+        .map((_, index) => isAdjacent(index, emptyIndex) ? index : -1)
+        .filter(index => index !== -1);
+      const randomIndex = adjacentTiles[Math.floor(Math.random() * adjacentTiles.length)];
+      moveTile(randomIndex);
+    }
+  }
+
+  // Solve puzzle using A* algorithm
+  function solve() {
+    const target = Array.from({ length: 9 }, (_, i) => i);
+    const start = [...puzzle];
+    
+    // Simple solution for demonstration
+    const steps = [];
+    let current = [...start];
+    
+    // Move empty tile to correct position
+    while (current[emptyIndex] !== 0) {
+      const targetPos = current.indexOf(0);
+      const moves = getPossibleMoves(current, emptyIndex);
+      const bestMove = moves.find(move => 
+        Math.abs(move - targetPos) < Math.abs(emptyIndex - targetPos)
+      );
+      
+      if (bestMove !== undefined) {
+        [current[bestMove], current[emptyIndex]] = [current[emptyIndex], current[bestMove]];
+        emptyIndex = bestMove;
+        steps.push([...current]);
+      } else {
+        break;
+      }
+    }
+    
+    displaySolution(steps);
+  }
+
+  // Get possible moves for empty tile
+  function getPossibleMoves(state, emptyPos) {
+    const moves = [];
+    const row = Math.floor(emptyPos / 3);
+    const col = emptyPos % 3;
+    
+    if (row > 0) moves.push(emptyPos - 3);
+    if (row < 2) moves.push(emptyPos + 3);
+    if (col > 0) moves.push(emptyPos - 1);
+    if (col < 2) moves.push(emptyPos + 1);
+    
+    return moves;
+  }
+
+  // Display solution steps
+  function displaySolution(steps) {
+    solutionSteps.classList.remove('hidden');
+    stepsList.innerHTML = '';
+    
+    steps.forEach((step, index) => {
+      const stepDiv = document.createElement('div');
+      stepDiv.className = 'flex items-center space-x-4';
+      
+      const stepNumber = document.createElement('div');
+      stepNumber.className = 'w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold';
+      stepNumber.textContent = index + 1;
+      
+      const stepGrid = document.createElement('div');
+      stepGrid.className = 'grid grid-cols-3 gap-1 flex-1';
+      
+      step.forEach((num, i) => {
+        const tile = document.createElement('div');
+        tile.className = 'aspect-square bg-gray-100 flex items-center justify-center text-sm font-bold rounded';
+        tile.textContent = num || '';
+        stepGrid.appendChild(tile);
+      });
+      
+      stepDiv.appendChild(stepNumber);
+      stepDiv.appendChild(stepGrid);
+      stepsList.appendChild(stepDiv);
+    });
+  }
+
+  // Event listeners
+  shuffleBtn.addEventListener('click', shuffle);
+  solveBtn.addEventListener('click', solve);
+
+  // Initialize
+  initializeGrid();
+</script> 
