@@ -58,19 +58,6 @@ import Layout from '../layouts/Layout.astro';
             >
               Shuffle
             </button>
-            <div>
-              <select
-                id="algorithm-select"
-                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-              >
-                <option value="pattern" selected>Pattern Solving</option>
-                <option value="astar-manhattan">A* (Manhattan Distance)</option>
-                <option value="astar-misplaced">A* (Misplaced Tiles)</option>
-                <option value="astar-linear">A* (Linear Conflict)</option>
-                <option value="idastar">IDA*</option>
-                <option value="bidirectional">Bidirectional BFS</option>
-              </select>
-            </div>
             <button
               id="solve-btn"
               class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
@@ -520,40 +507,11 @@ import Layout from '../layouts/Layout.astro';
     const grid = create2dArray(puzzle, cols);
     console.log('Created 2D grid:', grid);
     
-    // Get the selected algorithm
-    const algorithmSelect = document.getElementById('algorithm-select');
-    const selectedAlgorithm = algorithmSelect.value;
-    console.log('Selected algorithm:', selectedAlgorithm);
-    
     // 创建求解器实例
     const solver = new NPuzzleSolver(grid);
     console.log('Solver created');
 
-    // Solve using the selected algorithm
-    let solution;
-    switch (selectedAlgorithm) {
-      case 'pattern':
-        solution = solver.solve(); // Default pattern solving
-        break;
-      case 'astar-manhattan':
-        solution = solver.solveAStarManhattan();
-        break;
-      case 'astar-misplaced':
-        solution = solver.solveAStarMisplaced();
-        break;
-      case 'astar-linear':
-        solution = solver.solveAStarLinearConflict();
-        break;
-      case 'idastar':
-        solution = solver.solveIDAStar();
-        break;
-      case 'bidirectional':
-        solution = solver.solveBidirectionalBFS();
-        break;
-      default:
-        solution = solver.solve(); // Default to pattern solving
-    }
-    
+    const solution = solver.solve();
     console.log('Solution found:', solution);
 
     if (!solution) {

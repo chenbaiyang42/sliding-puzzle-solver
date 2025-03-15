@@ -396,4 +396,382 @@ export class NPuzzleSolver {
 							piece : (num1 == "") ? pos2 : pos1,
 							number : (num1 == "") ? num2 : num1});
 	}
+
+	solveAStarManhattan() {
+		this.setupSolver();
+		this.solution = [];
+		
+		// Create a flat representation of the grid for easier manipulation
+		const flatGrid = this.createFlatGrid();
+		const size = this.grid.length;
+		const goalState = this.createGoalState(size);
+		
+		// A* search with Manhattan distance heuristic
+		const result = this.aStarSearch(flatGrid, goalState, this.manhattanDistance);
+		
+		if (!result) {
+			console.log("No solution found with A* Manhattan Distance");
+			return null;
+		}
+		
+		return this.solution;
+	}
+	
+	// A* search algorithm
+	aStarSearch(initialState, goalState, heuristicFn) {
+		// Priority queue for open set (using array + sort for simplicity)
+		let openSet = [];
+		// Set to track visited states
+		const closedSet = new Set();
+		// Map to store parent states for path reconstruction
+		const cameFrom = new Map();
+		// Map to store g scores (cost from start to current)
+		const gScore = new Map();
+		// Map to store f scores (g score + heuristic)
+		const fScore = new Map();
+		
+		// Initialize with start state
+		const initialStateStr = JSON.stringify(initialState);
+		openSet.push(initialState);
+		gScore.set(initialStateStr, 0);
+		fScore.set(initialStateStr, heuristicFn(initialState, goalState));
+		
+		while (openSet.length > 0) {
+			// Sort open set by f score (lowest first)
+			openSet.sort((a, b) => {
+				const aStr = JSON.stringify(a);
+				const bStr = JSON.stringify(b);
+				return fScore.get(aStr) - fScore.get(bStr);
+			});
+			
+			// Get the state with lowest f score
+			const current = openSet.shift();
+			const currentStr = JSON.stringify(current);
+			
+			// Check if we reached the goal
+			if (JSON.stringify(current) === JSON.stringify(goalState)) {
+				// Reconstruct the path and convert to solution format
+				return this.reconstructPath(cameFrom, current, initialState);
+			}
+			
+			// Add to closed set
+			closedSet.add(currentStr);
+			
+			// Get all possible moves from current state
+			const neighbors = this.getNeighbors(current);
+			
+			for (const neighbor of neighbors) {
+				const neighborStr = JSON.stringify(neighbor);
+				
+				// Skip if already evaluated
+				if (closedSet.has(neighborStr)) {
+					continue;
+				}
+				
+				// Calculate tentative g score
+				const tentativeGScore = gScore.get(currentStr) + 1;
+				
+				// Check if this path is better or if neighbor is not in open set
+				const neighborInOpenSet = openSet.some(state => JSON.stringify(state) === neighborStr);
+				if (!neighborInOpenSet || tentativeGScore < gScore.get(neighborStr)) {
+					// Record this path
+					cameFrom.set(neighborStr, current);
+					gScore.set(neighborStr, tentativeGScore);
+					fScore.set(neighborStr, tentativeGScore + heuristicFn(neighbor, goalState));
+					
+					// Add to open set if not already there
+					if (!neighborInOpenSet) {
+						openSet.push(neighbor);
+					}
+				}
+			}
+		}
+		
+		// No solution found
+		return null;
+	}
+	
+	// Manhattan distance heuristic
+	manhattanDistance(state, goalState) {
+		let distance = 0;
+		const size = Math.sqrt(state.length);
+		
+		for (let i = 0; i < state.length; i++) {
+			const value = state[i];
+			if (value === "") continue; // Skip empty space
+			
+			// Find position in goal state
+			const goalIndex = goalState.indexOf(value);
+			
+			// Calculate Manhattan distance
+			const x1 = i % size;
+			const y1 = Math.floor(i / size);
+			const x2 = goalIndex % size;
+			const y2 = Math.floor(goalIndex / size);
+			
+			distance += Math.abs(x1 - x2) + Math.abs(y1 - y2);
+		}
+		
+		return distance;
+	}
+	
+	// Helper function to create a flat representation of the grid
+	createFlatGrid() {
+		const flat = [];
+		for (let i = 0; i < this.grid.length; i++) {
+			for (let j = 0; j < this.grid.length; j++) {
+				flat.push(this.grid[i][j]);
+			}
+		}
+		return flat;
+	}
+	
+	// Helper function to create the goal state
+	createGoalState(size) {
+		const goal = [];
+		for (let i = 1; i < size * size; i++) {
+			goal.push(i);
+		}
+		goal.push(""); // Empty space at the end
+		return goal;
+	}
+	
+	// Get all possible neighbor states from current state
+	getNeighbors(state) {
+		const neighbors = [];
+		const size = Math.sqrt(state.length);
+		const emptyIndex = state.indexOf("");
+		
+		// Calculate row and column of empty space
+		const emptyRow = Math.floor(emptyIndex / size);
+		const emptyCol = emptyIndex % size;
+		
+		// Possible moves: up, down, left, right
+		const moves = [
+			{ dr: -1, dc: 0 }, // up
+			{ dr: 1, dc: 0 },  // down
+			{ dr: 0, dc: -1 }, // left
+			{ dr: 0, dc: 1 }   // right
+		];
+		
+		for (const move of moves) {
+			const newRow = emptyRow + move.dr;
+			const newCol = emptyCol + move.dc;
+			
+			// Check if the move is valid
+			if (newRow >= 0 && newRow < size && newCol >= 0 && newCol < size) {
+				const newIndex = newRow * size + newCol;
+				
+				// Create a new state with the swap
+				const newState = [...state];
+				newState[emptyIndex] = state[newIndex];
+				newState[newIndex] = "";
+				
+				neighbors.push(newState);
+			}
+		}
+		
+		return neighbors;
+	}
+	
+	// Reconstruct the path from start to goal
+	reconstructPath(cameFrom, current, start) {
+		// Convert the path to solution format
+		const path = [current];
+		let currentStr = JSON.stringify(current);
+		
+		while (currentStr !== JSON.stringify(start)) {
+			const previous = cameFrom.get(currentStr);
+			path.unshift(previous);
+			currentStr = JSON.stringify(previous);
+		}
+		
+		// Convert path to solution format (sequence of moves)
+		for (let i = 0; i < path.length - 1; i++) {
+			const currentState = path[i];
+			const nextState = path[i + 1];
+			
+			// Find the positions that changed
+			const size = Math.sqrt(currentState.length);
+			let emptyPos, piecePos;
+			
+			for (let j = 0; j < currentState.length; j++) {
+				if (currentState[j] === "" && nextState[j] !== "") {
+					emptyPos = {
+						x: j % size,
+						y: Math.floor(j / size)
+					};
+					break;
+				}
+			}
+			
+			for (let j = 0; j < nextState.length; j++) {
+				if (nextState[j] === "" && currentState[j] !== "") {
+					piecePos = {
+						x: j % size,
+						y: Math.floor(j / size)
+					};
+					const number = currentState[j];
+					
+					this.solution.push({
+						empty: emptyPos,
+						piece: piecePos,
+						number: number
+					});
+					break;
+				}
+			}
+		}
+		
+		return this.solution;
+	}
+
+	solveAStarMisplaced() {
+		this.setupSolver();
+		this.solution = [];
+		
+		// Create a flat representation of the grid for easier manipulation
+		const flatGrid = this.createFlatGrid();
+		const size = this.grid.length;
+		const goalState = this.createGoalState(size);
+		
+		// A* search with Misplaced Tiles heuristic
+		const result = this.aStarSearch(flatGrid, goalState, this.misplacedTiles);
+		
+		if (!result) {
+			console.log("No solution found with A* Misplaced Tiles");
+			return null;
+		}
+		
+		return this.solution;
+	}
+	
+	// Misplaced tiles heuristic
+	misplacedTiles(state, goalState) {
+		let count = 0;
+		
+		for (let i = 0; i < state.length; i++) {
+			// Skip empty space
+			if (state[i] === "") continue;
+			
+			// Count if tile is not in its goal position
+			if (state[i] !== goalState[i]) {
+				count++;
+			}
+		}
+		
+		return count;
+	}
+
+	solveAStarLinearConflict() {
+		this.setupSolver();
+		this.solution = [];
+		
+		// Create a flat representation of the grid for easier manipulation
+		const flatGrid = this.createFlatGrid();
+		const size = this.grid.length;
+		const goalState = this.createGoalState(size);
+		
+		// A* search with Linear Conflict + Manhattan Distance heuristic
+		const result = this.aStarSearch(flatGrid, goalState, (state, goal) => this.linearConflict(state, goal));
+		
+		if (!result) {
+			console.log("No solution found with A* Linear Conflict");
+			return null;
+		}
+		
+		return this.solution;
+	}
+	
+	// Linear conflict heuristic (Manhattan distance + linear conflicts)
+	linearConflict(state, goalState) {
+		const size = Math.sqrt(state.length);
+		let conflicts = 0;
+		
+		// Calculate Manhattan distance first
+		const manhattanDist = this.manhattanDistance(state, goalState);
+		
+		// Check row conflicts
+		for (let row = 0; row < size; row++) {
+			// Get all tiles in this row
+			const tilesInRow = [];
+			for (let col = 0; col < size; col++) {
+				const index = row * size + col;
+				const value = state[index];
+				
+				// Skip empty space
+				if (value === "") continue;
+				
+				// Check if this tile belongs in this row in the goal state
+				const goalIndex = goalState.indexOf(value);
+				const goalRow = Math.floor(goalIndex / size);
+				
+				if (goalRow === row) {
+					tilesInRow.push({
+						value,
+						currentCol: col,
+						goalCol: goalIndex % size
+					});
+				}
+			}
+			
+			// Count conflicts in this row
+			for (let i = 0; i < tilesInRow.length; i++) {
+				for (let j = i + 1; j < tilesInRow.length; j++) {
+					// Check if tiles are in conflict (reversed order)
+					if (tilesInRow[i].currentCol < tilesInRow[j].currentCol && 
+						tilesInRow[i].goalCol > tilesInRow[j].goalCol) {
+						conflicts++;
+					}
+					if (tilesInRow[i].currentCol > tilesInRow[j].currentCol && 
+						tilesInRow[i].goalCol < tilesInRow[j].goalCol) {
+						conflicts++;
+					}
+				}
+			}
+		}
+		
+		// Check column conflicts
+		for (let col = 0; col < size; col++) {
+			// Get all tiles in this column
+			const tilesInCol = [];
+			for (let row = 0; row < size; row++) {
+				const index = row * size + col;
+				const value = state[index];
+				
+				// Skip empty space
+				if (value === "") continue;
+				
+				// Check if this tile belongs in this column in the goal state
+				const goalIndex = goalState.indexOf(value);
+				const goalCol = goalIndex % size;
+				
+				if (goalCol === col) {
+					tilesInCol.push({
+						value,
+						currentRow: row,
+						goalRow: Math.floor(goalIndex / size)
+					});
+				}
+			}
+			
+			// Count conflicts in this column
+			for (let i = 0; i < tilesInCol.length; i++) {
+				for (let j = i + 1; j < tilesInCol.length; j++) {
+					// Check if tiles are in conflict (reversed order)
+					if (tilesInCol[i].currentRow < tilesInCol[j].currentRow && 
+						tilesInCol[i].goalRow > tilesInCol[j].goalRow) {
+						conflicts++;
+					}
+					if (tilesInCol[i].currentRow > tilesInCol[j].currentRow && 
+						tilesInCol[i].goalRow < tilesInCol[j].goalRow) {
+						conflicts++;
+					}
+				}
+			}
+		}
+		
+		// Each conflict requires at least 2 additional moves
+		return manhattanDist + 2 * conflicts;
+	}
 }
