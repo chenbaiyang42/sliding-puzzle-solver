@@ -275,12 +275,65 @@ import Layout from '../layouts/Layout.astro';
   const rowsSelect = document.getElementById('rows');
   const colsSelect = document.getElementById('cols');
 
+  // 保存拼图状态到localStorage
+  function savePuzzleState(isSolving) {
+    const state = {
+      rows,
+      cols,
+      puzzle,
+      emptyIndex,
+      animationDelay,
+      isSolving
+    };
+    localStorage.setItem('puzzleState', JSON.stringify(state));
+    console.log('Puzzle state saved to localStorage');
+  }
+
+  // 从localStorage加载拼图状态
+  function loadPuzzleState() {
+    const savedState = localStorage.getItem('puzzleState');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        rows = state.rows;
+        cols = state.cols;
+        puzzle = state.puzzle;
+        emptyIndex = state.emptyIndex;
+        animationDelay = state.animationDelay || 200;
+        
+        // 更新UI控件以匹配加载的状态
+        rowsSelect.value = rows;
+        colsSelect.value = cols;
+        
+        console.log('Puzzle state loaded from localStorage:', state);
+        
+        return true;
+      } catch (error) {
+        console.error('Error loading puzzle state:', error);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  // 清除保存的拼图状态
+  function clearPuzzleState() {
+    localStorage.removeItem('puzzleState');
+    console.log('Puzzle state cleared from localStorage');
+  }
+
   // 初始化拼图
   function initializePuzzle() {
     console.group('Puzzle Initialization');
-    const totalTiles = rows * cols;
-    puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
-    emptyIndex = totalTiles - 1;
+    
+    // 尝试从localStorage加载状态
+    if (!loadPuzzleState()) {
+      // 如果没有保存的状态，创建新的拼图
+      const totalTiles = rows * cols;
+      puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+      emptyIndex = totalTiles - 1;
+    }
+    
     console.log('Initial puzzle state:', puzzle);
     console.log('Grid dimensions:', { rows, cols });
     updateGrid();
@@ -369,6 +422,9 @@ import Layout from '../layouts/Layout.astro';
       // 清除选中状态
       selectedIndex = null;
       initializeGrid();
+      
+      // 保存当前状态到localStorage
+      savePuzzleState(false); // 不是求解状态
     } else {
       // 如果没有选中的拼图块，将当前点击的拼图块设为选中状态
       selectedIndex = index;
@@ -423,6 +479,9 @@ import Layout from '../layouts/Layout.astro';
     
     // Update the grid display
     initializeGrid();
+    
+    // 保存当前状态到localStorage
+    savePuzzleState(false); // 不是求解状态
   }
 
   function create2dArray(array, size) {
@@ -441,6 +500,9 @@ import Layout from '../layouts/Layout.astro';
     console.group('Puzzle Solving Process');
     console.log('Current puzzle state:', puzzle);
     console.log('Grid dimensions:', { rows, cols });
+    
+    // 在求解前保存当前状态到localStorage
+    savePuzzleState(true);
     
     const grid = create2dArray(puzzle, cols);
     console.log('Created 2D grid:', grid);
@@ -504,7 +566,7 @@ import Layout from '../layouts/Layout.astro';
       // 更新puzzle数组
       puzzle[emptyIndex] = pieceNum;
       puzzle[pieceIndex] = 0; // 使用0表示空格
-
+      
       // 获取需要移动的tile元素
       const tiles = grid.children;
       let tileToMove;
@@ -533,6 +595,9 @@ import Layout from '../layouts/Layout.astro';
 
     // 动画完成后重新初始化网格以确保状态正确
     initializeGrid();
+    
+    // 解决完成后清除保存的状态
+    clearPuzzleState();
 
     // 动画完成后重新启用按钮
     shuffleBtn.disabled = false;
@@ -584,6 +649,9 @@ import Layout from '../layouts/Layout.astro';
     emptyIndex = totalTiles - 1;
     selectedIndex = null;
     initializeGrid();
+    
+    // 清除保存的状态
+    clearPuzzleState();
   }
 
   // 事件监听器
@@ -595,26 +663,26 @@ import Layout from '../layouts/Layout.astro';
   speedUpBtn.addEventListener('click', () => {
     animationDelay = Math.max(100, animationDelay - 100);
     speedUpBtn.textContent = `Speed Up (${animationDelay}ms)`;
+    savePuzzleState(false); // 保存速度设置，不是求解状态
   });
   
   speedDownBtn.addEventListener('click', () => {
     animationDelay += 100;
     speedDownBtn.textContent = `Slow Down (${animationDelay}ms)`;
+    savePuzzleState(false); // 保存速度设置，不是求解状态
   });
-  
-  // 初始化按钮文本
-  speedUpBtn.textContent = `Speed Up (${animationDelay}ms)`;
-  speedDownBtn.textContent = `Slow Down (${animationDelay}ms)`;
   
   // 监听大小变化
   rowsSelect.addEventListener('change', (e) => {
     rows = parseInt(e.target.value);
     initializePuzzle();
+    clearPuzzleState(); // 清除保存的状态，因为尺寸已更改
   });
   
   colsSelect.addEventListener('change', (e) => {
     cols = parseInt(e.target.value);
     initializePuzzle();
+    clearPuzzleState(); // 清除保存的状态，因为尺寸已更改
   });
 
   // 初始化
