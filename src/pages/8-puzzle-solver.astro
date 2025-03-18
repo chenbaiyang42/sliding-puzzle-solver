@@ -1,0 +1,532 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="8 Puzzle Solver - Find the optimal solution for 3x3 puzzles"
+  description="Our specialized 8 Puzzle Solver uses advanced algorithms to find the optimal solution path for any 3x3 sliding puzzle configuration."
+  canonical="https://sliding-puzzle-solver.com/8-puzzle-solver"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+      <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+        <span class="block text-primary">8 Puzzle Solver</span>
+      </h1>
+      <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+        Our <strong>8 Puzzle Solver</strong> uses advanced algorithms to find the optimal solution for any 3×3 sliding puzzle configuration. Perfect for helping you master this classic challenge.
+      </p>
+    </div>
+
+    <!-- Solver Section -->
+    <div class="mt-12">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-8">Try Our 8 Puzzle Solver</h2>
+      <div class="max-w-2xl mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <div id="puzzle-grid" class="grid gap-2 mb-6 relative">
+            <!-- Grid will be populated by JavaScript -->
+          </div>
+
+          <!-- Controls -->
+          <div class="flex justify-center space-x-4">
+            <button
+              id="shuffle-btn"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Shuffle
+            </button>
+            <div>
+              <select
+                id="algorithm-select"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                <option value="pattern" selected>Pattern Solving</option>
+                <option value="astar-manhattan">A* (Manhattan Distance)</option>
+                <option value="astar-misplaced">A* (Misplaced Tiles)</option>
+                <option value="astar-linear">A* (Linear Conflict)</option>
+                <option value="idastar">IDA*</option>
+                <option value="bidirectional">Bidirectional BFS</option>
+              </select>
+            </div>
+            <button
+              id="solve-btn"
+              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Solve
+            </button>
+            <button
+              id="reset-btn"
+              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Solution Steps -->
+        <div id="solution-steps" class="mt-8 hidden">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Solution Steps</h2>
+          <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div id="steps-list" class="space-y-4">
+              <!-- Steps will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Understanding 8 Puzzle Section -->
+    <div class="mt-16">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Understanding the 8 Puzzle</h2>
+      <div class="mt-10 max-w-3xl mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <p class="text-lg text-gray-600 mb-4">
+            The <strong>8 Puzzle</strong> is a simpler variant of the classic sliding puzzle, featuring a 3×3 grid with 8 numbered tiles and one empty space. The goal is to arrange the tiles in numerical order by sliding them into the empty position.
+          </p>
+          
+          <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Key Features of Our 8 Puzzle Solver</h3>
+          <ul class="list-disc pl-6 space-y-2">
+            <li>Multiple solving algorithms with different performance characteristics</li>
+            <li>Real-time visualization of the solution process</li>
+            <li>Step-by-step solution guide that's easy to follow</li>
+            <li>Optimized specifically for the 3×3 grid of the 8 Puzzle</li>
+            <li>Educational insights into the solving process</li>
+          </ul>
+          
+          <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Algorithm Performance for 8 Puzzle</h3>
+          <p class="text-lg text-gray-600 mb-4">
+            For the 8 Puzzle, different algorithms offer various trade-offs between solution time and optimality:
+          </p>
+          <ul class="list-disc pl-6 space-y-2">
+            <li><strong>A* with Manhattan Distance:</strong> Usually finds solutions in under 0.5 seconds for most 8 puzzle configurations</li>
+            <li><strong>Pattern Solving:</strong> Very fast but may produce slightly longer solution paths</li>
+            <li><strong>IDA*:</strong> Guarantees the shortest solution but may take longer for complex configurations</li>
+            <li><strong>Bidirectional BFS:</strong> Excellent balance of speed and solution quality for the 8 puzzle</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Educational Value Section -->
+    <div class="mt-16">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Why Practice with the 8 Puzzle?</h2>
+      <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2">
+        <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="text-lg font-medium text-gray-900">Perfect for Beginners</div>
+          <p class="mt-2 text-gray-500">
+            The 8 puzzle provides an ideal introduction to sliding puzzles. With fewer tiles than the 15 puzzle, it's easier to understand the core strategies while still offering a meaningful challenge.
+          </p>
+        </div>
+
+        <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div class="text-lg font-medium text-gray-900">Learn Fundamental Techniques</div>
+          <p class="mt-2 text-gray-500">
+            Master the basic solving patterns and principles with the 8 puzzle before tackling more complex configurations. The skills you develop here transfer directly to larger puzzles.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script type="module">
+  import { NPuzzleSolver } from '/js/NPuzzleSolver.js';
+  
+  // Puzzle state management
+  let rows = 3;
+  let cols = 3;
+  let puzzle = [];
+  let emptyIndex = -1;
+  let selectedIndex = null;
+  let tileSize = 0; // Store tile size for animations
+  let animationDelay = 200; // Initial animation delay in ms
+  
+  // Get key DOM elements
+  const grid = document.getElementById('puzzle-grid');
+  const shuffleBtn = document.getElementById('shuffle-btn');
+  const solveBtn = document.getElementById('solve-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const solutionSteps = document.getElementById('solution-steps');
+  const stepsList = document.getElementById('steps-list');
+
+  // Save puzzle state to localStorage
+  function savePuzzleState(isSolving) {
+    const state = {
+      rows,
+      cols,
+      puzzle,
+      emptyIndex,
+      animationDelay,
+      isSolving
+    };
+    localStorage.setItem('puzzleState8', JSON.stringify(state));
+  }
+
+  // Load puzzle state from localStorage
+  function loadPuzzleState() {
+    const savedState = localStorage.getItem('puzzleState8');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        puzzle = state.puzzle;
+        emptyIndex = state.emptyIndex;
+        animationDelay = state.animationDelay || 200;
+        return true;
+      } catch (error) {
+        console.error('Error loading puzzle state:', error);
+        return false;
+      }
+    }
+    return false;
+  }
+
+  // Clear saved puzzle state
+  function clearPuzzleState() {
+    localStorage.removeItem('puzzleState8');
+  }
+
+  // Initialize puzzle
+  function initializePuzzle() {
+    // Try to load from localStorage
+    if (!loadPuzzleState()) {
+      // If no saved state, create new puzzle
+      const totalTiles = rows * cols;
+      puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+      emptyIndex = totalTiles - 1;
+    }
+    
+    updateGrid();
+    initializeGrid();
+  }
+
+  // Update grid layout
+  function updateGrid() {
+    // Calculate tile size based on grid width and number of columns
+    const gridWidth = grid.offsetWidth;
+    tileSize = (gridWidth - (cols - 1) * 8) / cols; // 8px is the gap size
+    grid.style.height = `${rows * tileSize + (rows - 1) * 8}px`; // Set grid height
+  }
+
+  // Initialize puzzle grid
+  function initializeGrid() {
+    grid.innerHTML = '';
+    puzzle.forEach((num, index) => {
+      const tile = document.createElement('div');
+      tile.className = 'absolute bg-primary text-white flex items-center justify-center text-2xl font-bold rounded cursor-pointer hover:bg-primary/90 transition-all duration-200';
+      
+      // Calculate position
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      const top = row * (tileSize + 8); // 8px gap
+      const left = col * (tileSize + 8);
+      
+      tile.style.width = `${tileSize}px`;
+      tile.style.height = `${tileSize}px`;
+      tile.style.transform = `translate(${left}px, ${top}px)`;
+      
+      // If empty tile, add special style
+      if (num === 0) {
+        tile.classList.remove('bg-primary');
+        tile.classList.add('bg-transparent');
+        tile.classList.remove('text-white');
+        tile.classList.remove('hover:bg-primary/90');
+      }
+      
+      // If selected, add highlight style
+      if (index === selectedIndex) {
+        tile.classList.add('ring-4', 'ring-yellow-400');
+      }
+      
+      // Set tile text (empty for blank)
+      tile.textContent = num === 0 ? '' : num;
+      
+      tile.dataset.index = index;
+      tile.dataset.number = num;
+      
+      // Add click event for all tiles
+      tile.addEventListener('click', () => handleTileClick(index));
+      
+      grid.appendChild(tile);
+    });
+  }
+
+  // Handle tile click
+  function handleTileClick(index) {
+    // If already selected
+    if (selectedIndex !== null) {
+      // If clicking the same tile, deselect
+      if (selectedIndex === index) {
+        selectedIndex = null;
+        initializeGrid();
+        return;
+      }
+      
+      // Swap positions
+      [puzzle[selectedIndex], puzzle[index]] = [puzzle[index], puzzle[selectedIndex]];
+      
+      // Update empty position
+      if (puzzle[selectedIndex] === 0) {
+        emptyIndex = selectedIndex;
+      } else if (puzzle[index] === 0) {
+        emptyIndex = index;
+      }
+      
+      // Clear selection
+      selectedIndex = null;
+      initializeGrid();
+      
+      // Save state
+      savePuzzleState(false);
+    } else {
+      // Set as selected
+      selectedIndex = index;
+      initializeGrid();
+    }
+  }
+
+  // Check if two positions are adjacent
+  function isAdjacent(pos1, pos2) {
+    const row1 = Math.floor(pos1 / cols);
+    const col1 = pos1 % cols;
+    const row2 = Math.floor(pos2 / cols);
+    const col2 = pos2 % cols;
+    return (Math.abs(row1 - row2) === 1 && col1 === col2) ||
+           (Math.abs(col1 - col2) === 1 && row1 === row2);
+  }
+
+  // Get possible moves
+  function getPossibleMoves(state, emptyPos) {
+    const moves = [];
+    const row = Math.floor(emptyPos / cols);
+    const col = emptyPos % cols;
+    
+    if (row > 0) moves.push(emptyPos - cols); // Up
+    if (row < rows - 1) moves.push(emptyPos + cols); // Down
+    if (col > 0) moves.push(emptyPos - 1); // Left
+    if (col < cols - 1) moves.push(emptyPos + 1); // Right
+    
+    return moves;
+  }
+
+  // Shuffle puzzle
+  function shuffle() {
+    // Reset puzzle to initial state first
+    const totalTiles = rows * cols;
+    puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+    emptyIndex = totalTiles - 1;
+    
+    // Perform random moves
+    for (let i = 0; i < 1000; i++) {
+      const possibleMoves = getPossibleMoves(puzzle, emptyIndex);
+      const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+      
+      // Swap positions
+      puzzle[emptyIndex] = puzzle[randomMove];
+      puzzle[randomMove] = 0;
+      emptyIndex = randomMove;
+    }
+    
+    // Update the grid display
+    initializeGrid();
+    
+    // Save state
+    savePuzzleState(false);
+  }
+
+  function create2dArray(array, size) {
+    let result = [];
+    for (let i = 0; i < array.length; i++) {
+      if (i % size === 0) {
+        result.push([]);
+      }
+      result[Math.floor(i / size)][i % size] = array[i] === 0 ? '' : array[i];
+    }
+    return result;
+  }
+
+  // Solve puzzle
+  function solve() {
+    // Save state before solving
+    savePuzzleState(true);
+    
+    const grid = create2dArray(puzzle, cols);
+    
+    // Get the selected algorithm
+    const algorithmSelect = document.getElementById('algorithm-select');
+    const selectedAlgorithm = algorithmSelect.value;
+    
+    // Create solver instance
+    const solver = new NPuzzleSolver(grid);
+
+    // Solve using the selected algorithm
+    let solution;
+    switch (selectedAlgorithm) {
+      case 'pattern':
+        solution = solver.solve(); // Default pattern solving
+        break;
+      case 'astar-manhattan':
+        solution = solver.solveAStarManhattan();
+        break;
+      case 'astar-misplaced':
+        solution = solver.solveAStarMisplaced();
+        break;
+      case 'astar-linear':
+        solution = solver.solveAStarLinearConflict();
+        break;
+      case 'idastar':
+        solution = solver.solveIDAStar();
+        break;
+      case 'bidirectional':
+        solution = solver.solveBidirectionalBFS();
+        break;
+      default:
+        solution = solver.solve(); // Default to pattern solving
+    }
+
+    if (!solution) {
+      alert('No solution found! Please try a different configuration.');
+      return;
+    }
+
+    // Convert solution to steps list
+    const steps = solution.map(move => {
+      const pieceNum = move.number
+      let direction = '';
+      
+      // Determine direction
+      if (move.empty.y < move.piece.y) direction = 'down';
+      else if (move.empty.y > move.piece.y) direction = 'up';
+      else if (move.empty.x < move.piece.x) direction = 'left';
+      else if (move.empty.x > move.piece.x) direction = 'right';
+
+      return {
+        moved: pieceNum,
+        direction: direction
+      };
+    });
+
+    displaySolution(steps);
+    executeSolution(solution);
+  }
+
+  // Execute solution animation
+  async function executeSolution(solution) {
+    // Disable buttons during animation
+    shuffleBtn.disabled = true;
+    solveBtn.disabled = true;
+    resetBtn.disabled = true;
+
+    // For each step
+    for (const move of solution) {
+      // Get number and position to move
+      const pieceNum = move.number;
+      const piecePos = move.piece;
+      const emptyPos = move.empty;
+
+      // Calculate indices
+      const pieceIndex = piecePos.y * cols + piecePos.x;
+      const emptyIndex = emptyPos.y * cols + emptyPos.x;
+
+      // Update puzzle array
+      puzzle[emptyIndex] = pieceNum;
+      puzzle[pieceIndex] = 0; // Empty space
+      
+      // Get tile to move
+      const tiles = grid.children;
+      let tileToMove;
+      for (const tile of tiles) {
+        if (parseInt(tile.dataset.number) === pieceNum) {
+          tileToMove = tile;
+          break;
+        }
+      }
+
+      if (tileToMove) {
+        // Calculate new position
+        const newRow = Math.floor(emptyIndex / cols);
+        const newCol = emptyIndex % cols;
+        const newTop = newRow * (tileSize + 8);
+        const newLeft = newCol * (tileSize + 8);
+
+        // Apply animation
+        if (pieceNum !== 0) {
+          tileToMove.style.transform = `translate(${newLeft}px, ${newTop}px)`;
+          // Wait for animation
+          await new Promise(resolve => setTimeout(resolve, animationDelay));
+        }
+      }
+    }
+
+    // Reinitialize grid when done
+    initializeGrid();
+    
+    // Clear saved state
+    clearPuzzleState();
+
+    // Re-enable buttons
+    shuffleBtn.disabled = false;
+    solveBtn.disabled = false;
+    resetBtn.disabled = false;
+  }
+
+  // Display solution
+  function displaySolution(steps) {
+    solutionSteps.classList.remove('hidden');
+    stepsList.innerHTML = '';
+    
+    let solutionText = `${steps.length} steps in total:\n\n`;
+    
+    steps.forEach((step, index) => {
+      solutionText += `${index + 1}. Move ${step.moved} ${step.direction}\n`;
+    });
+    
+    const textArea = document.createElement('textarea');
+    textArea.value = solutionText;
+    textArea.className = 'w-full h-64 font-mono p-4 border rounded';
+    textArea.readOnly = true;
+    
+    const copyButton = document.createElement('button');
+    copyButton.textContent = 'Copy Solution';
+    copyButton.className = 'mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary';
+    copyButton.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(solutionText);
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => {
+          copyButton.textContent = 'Copy Solution';
+        }, 2000);
+      } catch (err) {
+        alert('Failed to copy solution to clipboard');
+      }
+    };
+    
+    stepsList.appendChild(textArea);
+    stepsList.appendChild(copyButton);
+  }
+
+  // Reset puzzle
+  function reset() {
+    const totalTiles = rows * cols;
+    puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+    emptyIndex = totalTiles - 1;
+    selectedIndex = null;
+    initializeGrid();
+    
+    // Clear saved state
+    clearPuzzleState();
+  }
+
+  // Event listeners
+  shuffleBtn.addEventListener('click', shuffle);
+  solveBtn.addEventListener('click', solve);
+  resetBtn.addEventListener('click', reset);
+
+  // Initialize
+  initializePuzzle();
+  
+  // Add window resize event listener
+  window.addEventListener('resize', () => {
+    updateGrid();
+    initializeGrid();
+  });
+</script> 

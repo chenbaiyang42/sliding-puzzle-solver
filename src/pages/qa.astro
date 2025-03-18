@@ -1,0 +1,211 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout 
+  title="Sliding Puzzle Solver Q&A - Frequently Asked Questions"
+  description="Find answers to common questions about our Sliding Puzzle Solver, including algorithm performance, solution times, and solving techniques."
+  canonical="https://sliding-puzzle-solver.com/qa"
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <!-- Hero Section -->
+    <div class="text-center">
+      <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+        <span class="block text-primary">Frequently Asked Questions</span>
+      </h1>
+      <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+        Find answers to common questions about our Sliding Puzzle Solver, its algorithms, and how to get the most out of this tool.
+      </p>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="mt-12 max-w-3xl mx-auto">
+      <div class="space-y-8">
+        <!-- Performance Questions -->
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Algorithm Performance</h2>
+          
+          <div class="mt-6 space-y-6">
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">How long does it take to solve a puzzle?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p class="mb-3">Solution time varies based on puzzle size, complexity, and the algorithm chosen:</p>
+                  <ul class="list-disc pl-5 space-y-2">
+                    <li><strong>8 Puzzle (3×3):</strong> Typically solves in under 1 second with most algorithms</li>
+                    <li><strong>15 Puzzle (4×4):</strong> 
+                      <ul class="list-disc pl-5 mt-1">
+                        <li>Pattern Solving: 1-2 seconds</li>
+                        <li>A* with Manhattan Distance: 3-10 seconds</li>
+                        <li>A* with Linear Conflict: 10-30 seconds</li>
+                        <li>IDA*: 30-120 seconds for optimal solutions</li>
+                      </ul>
+                    </li>
+                    <li><strong>Larger puzzles (5×5 and above):</strong> Pattern solving becomes essential, as other algorithms may take minutes or even hours</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Which algorithm should I choose?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p class="mb-3">The best algorithm depends on your specific needs:</p>
+                  <ul class="list-disc pl-5 space-y-2">
+                    <li><strong>Pattern Solving:</strong> Fastest for all puzzle sizes but may not provide the shortest solution path</li>
+                    <li><strong>A* with Manhattan Distance:</strong> Good balance of speed and solution quality for 8 and 15 puzzles</li>
+                    <li><strong>A* with Linear Conflict:</strong> Better solution quality than Manhattan, but slower</li>
+                    <li><strong>IDA*:</strong> Guarantees the shortest solution but significantly slower for larger puzzles</li>
+                    <li><strong>Bidirectional BFS:</strong> Very effective for 8 puzzles but memory-intensive for larger puzzles</li>
+                  </ul>
+                  <p class="mt-3">For beginners, we recommend starting with Pattern Solving or A* with Manhattan Distance.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Why do solution times vary so much?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p>Solution times depend on several factors:</p>
+                  <ul class="list-disc pl-5 space-y-2 mt-2">
+                    <li><strong>Puzzle complexity:</strong> The further from the solution, the longer it takes</li>
+                    <li><strong>Algorithm choice:</strong> Different algorithms have different time-space tradeoffs</li>
+                    <li><strong>Puzzle size:</strong> Larger puzzles have exponentially larger state spaces</li>
+                    <li><strong>Your device:</strong> Faster devices will compute solutions more quickly</li>
+                  </ul>
+                  <p class="mt-3">A 15 puzzle has approximately 10^13 possible states, while an 8 puzzle has only about 10^5, making the 15 puzzle significantly more challenging to solve.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Technical Questions -->
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Technical Information</h2>
+          
+          <div class="mt-6 space-y-6">
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">How do the algorithms work?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p class="mb-3">Our solver implements several advanced search algorithms:</p>
+                  <ul class="list-disc pl-5 space-y-3">
+                    <li>
+                      <strong>Pattern Solving:</strong> A strategic approach that solves the puzzle row by row and column by column, similar to how humans typically solve these puzzles
+                    </li>
+                    <li>
+                      <strong>A* Search:</strong> An informed search algorithm that uses heuristics to guide its search toward the goal state. We offer several heuristics:
+                      <ul class="list-disc pl-5 mt-1">
+                        <li><strong>Manhattan Distance:</strong> Calculates the sum of horizontal and vertical distances each tile is from its goal position</li>
+                        <li><strong>Misplaced Tiles:</strong> Counts how many tiles are not in their correct position</li>
+                        <li><strong>Linear Conflict:</strong> Enhances Manhattan distance by accounting for tiles that are in the correct row/column but in the wrong order</li>
+                      </ul>
+                    </li>
+                    <li>
+                      <strong>IDA* (Iterative Deepening A*):</strong> A memory-efficient variant of A* that guarantees an optimal solution
+                    </li>
+                    <li>
+                      <strong>Bidirectional BFS:</strong> Searches simultaneously from both the initial state and goal state, meeting in the middle
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Are all puzzle configurations solvable?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p>No, not all configurations of sliding puzzles are solvable. Exactly half of all possible arrangements are unsolvable.</p>
+                  <p class="mt-3">Whether a puzzle is solvable depends on a mathematical property called "parity" or "inversion count":</p>
+                  <ul class="list-disc pl-5 space-y-2 mt-2">
+                    <li>For odd-sized grids (3×3, 5×5, etc.), a puzzle is solvable if the number of inversions is even</li>
+                    <li>For even-sized grids (4×4, 6×6, etc.), a puzzle is solvable if:
+                      <ul class="list-disc pl-5 mt-1">
+                        <li>The number of inversions is even and the blank is on an odd row (counting from the bottom)</li>
+                        <li>Or, the number of inversions is odd and the blank is on an even row</li>
+                      </ul>
+                    </li>
+                  </ul>
+                  <p class="mt-3">Our solver automatically detects unsolvable configurations and will inform you if a solution is not possible.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">What is the maximum puzzle size supported?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p>Our solver supports puzzles from 2×2 up to 9×9 sizes, though solving times increase significantly for larger puzzles:</p>
+                  <ul class="list-disc pl-5 space-y-2 mt-2">
+                    <li><strong>2×2 to 4×4:</strong> All algorithms work efficiently</li>
+                    <li><strong>5×5 to 6×6:</strong> Pattern solving recommended; A* algorithms may work for moderately scrambled puzzles</li>
+                    <li><strong>7×7 to 9×9:</strong> Only pattern solving is practical; other algorithms may time out</li>
+                  </ul>
+                  <p class="mt-3">For puzzles larger than 5×5, we recommend using the pattern solving algorithm exclusively, as it scales much better to larger puzzle sizes.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Usage Questions -->
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Using the Solver</h2>
+          
+          <div class="mt-6 space-y-6">
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">How do I input my own puzzle configuration?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p>To input your own puzzle configuration:</p>
+                  <ol class="list-decimal pl-5 space-y-2 mt-2">
+                    <li>Set the appropriate grid size using the rows/columns selectors</li>
+                    <li>Click on "Reset" to clear the grid to its solved state</li>
+                    <li>Click on tiles to select them, then click on another tile to swap their positions</li>
+                    <li>Repeat until your puzzle matches your real-world configuration</li>
+                    <li>Click "Solve" to find the solution</li>
+                  </ol>
+                  <p class="mt-3">Alternatively, you can use the "Shuffle" button to create a random configuration.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Can I speed up or slow down the solution animation?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p>Yes, you can control the animation speed:</p>
+                  <ul class="list-disc pl-5 space-y-2 mt-2">
+                    <li>Use the "Speed Up" button to make the animation faster</li>
+                    <li>Use the "Slow Down" button to make the animation slower</li>
+                    <li>The animation speed settings persist between sessions</li>
+                  </ul>
+                  <p class="mt-3">Slowing down the animation can be particularly helpful for educational purposes or when you want to carefully observe each step of the solution.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden rounded-lg">
+              <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">What if the solver says "No solution found"?</h3>
+                <div class="mt-2 text-gray-600">
+                  <p>If the solver indicates "No solution found," it means one of two things:</p>
+                  <ul class="list-disc pl-5 space-y-2 mt-2">
+                    <li>The puzzle configuration is unsolvable (mathematically impossible)</li>
+                    <li>The selected algorithm reached its resource limits (time or memory)</li>
+                  </ul>
+                  <p class="mt-3">For complex configurations on larger puzzles, try switching to the Pattern Solving algorithm, which is more efficient but may produce slightly longer solution paths.</p>
+                  <p class="mt-3">If you believe your puzzle should be solvable but keeps failing, double-check that you've entered it correctly. A single misplaced tile can make a solvable puzzle unsolvable.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout> 
