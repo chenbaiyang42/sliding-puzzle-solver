@@ -2,9 +2,10 @@
 interface Props {
   title: string;
   description?: string;
+  canonical?: string;
 }
 
-const { title, description = "Sliding Puzzle Solver - Find the optimal solution for your sliding puzzle game" } = Astro.props;
+const { title, description = "Sliding Puzzle Solver - Find the optimal solution for your sliding puzzle game", canonical } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -16,6 +17,7 @@ const { title, description = "Sliding Puzzle Solver - Find the optimal solution 
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
   </head>
   <body class="min-h-screen bg-gray-50">
     <header class="bg-white shadow-sm">
