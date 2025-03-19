@@ -774,4 +774,352 @@ export class NPuzzleSolver {
 		// Each conflict requires at least 2 additional moves
 		return manhattanDist + 2 * conflicts;
 	}
+
+	// IDA* (Iterative Deepening A*) algorithm for solving the puzzle
+	solveIDAStar() {
+		this.setupSolver();
+		this.solution = [];
+		
+		// Create a flat representation of the grid for easier manipulation
+		const initialState = this.createFlatGrid();
+		const size = this.grid.length;
+		const goalState = this.createGoalState(size);
+		
+		// Using Manhattan distance as the heuristic function
+		const heuristic = (state) => this.manhattanDistance(state, goalState);
+		
+		// Set the initial bound to the heuristic estimate from the start state
+		let bound = heuristic(initialState);
+		const pathStates = [initialState];
+		const pathMoves = [];
+		
+		while (true) {
+			// Search with the current bound
+			const result = this.idaStarSearch(pathStates, pathMoves, 0, bound, heuristic, goalState);
+			
+			// If result is not a number, we found a solution
+			if (typeof result !== 'number') {
+				if (!result) {
+					console.log("No solution found with IDA*");
+					return null;
+				}
+				return this.solution;
+			}
+			
+			// If the next bound is Infinity, no solution exists
+			if (result === Infinity) {
+				console.log("No solution found with IDA*");
+				return null;
+			}
+			
+			// Update the bound for the next iteration
+			bound = result;
+		}
+	}
+	
+	// Recursive search function for IDA*
+	idaStarSearch(pathStates, pathMoves, g, bound, heuristic, goalState) {
+		const currentState = pathStates[pathStates.length - 1];
+		const f = g + heuristic(currentState);
+		
+		// If f exceeds the bound, return the new minimum bound
+		if (f > bound) return f;
+		
+		// If we reached the goal state, reconstruct the solution
+		if (JSON.stringify(currentState) === JSON.stringify(goalState)) {
+			// Convert the path to solution format
+			this.reconstructIDAStar(pathStates, pathMoves);
+			return true;
+		}
+		
+		let minBound = Infinity;
+		
+		// Get all possible moves from current state
+		const neighbors = this.getNeighbors(currentState);
+		
+		for (let i = 0; i < neighbors.length; i++) {
+			const neighbor = neighbors[i];
+			const neighborStr = JSON.stringify(neighbor);
+			
+			// Skip if this state is already in the path (avoid cycles)
+			if (pathStates.some(state => JSON.stringify(state) === neighborStr)) {
+				continue;
+			}
+			
+			// Record the move that leads to this neighbor
+			const size = Math.sqrt(currentState.length);
+			const emptyIndexCurrent = currentState.indexOf("");
+			const emptyIndexNeighbor = neighbor.indexOf("");
+			
+			let move;
+			if (emptyIndexNeighbor === emptyIndexCurrent - 1) move = 'l'; // empty moves left
+			else if (emptyIndexNeighbor === emptyIndexCurrent + 1) move = 'r'; // empty moves right
+			else if (emptyIndexNeighbor === emptyIndexCurrent - size) move = 'u'; // empty moves up
+			else if (emptyIndexNeighbor === emptyIndexCurrent + size) move = 'd'; // empty moves down
+			
+			// Add the neighbor to the path
+			pathStates.push(neighbor);
+			pathMoves.push(move);
+			
+			// Recursive search
+			const result = this.idaStarSearch(pathStates, pathMoves, g + 1, bound, heuristic, goalState);
+			
+			// If result is not a number, we found a solution
+			if (typeof result !== 'number') {
+				return result;
+			}
+			
+			// Update the minimum bound
+			minBound = Math.min(minBound, result);
+			
+			// Remove the neighbor from the path
+			pathStates.pop();
+			pathMoves.pop();
+		}
+		
+		return minBound;
+	}
+	
+	// Convert the IDA* path to solution format
+	reconstructIDAStar(pathStates, pathMoves) {
+		const size = Math.sqrt(pathStates[0].length);
+		
+		for (let i = 0; i < pathStates.length - 1; i++) {
+			const currentState = pathStates[i];
+			const nextState = pathStates[i + 1];
+			
+			// Find the positions that changed
+			let emptyPos, piecePos, number;
+			
+			const emptyIndexCurrent = currentState.indexOf("");
+			const emptyRow = Math.floor(emptyIndexCurrent / size);
+			const emptyCol = emptyIndexCurrent % size;
+			
+			const emptyIndexNext = nextState.indexOf("");
+			const pieceIndex = emptyIndexNext;
+			
+			emptyPos = {
+				x: emptyCol,
+				y: emptyRow
+			};
+			
+			piecePos = {
+				x: pieceIndex % size,
+				y: Math.floor(pieceIndex / size)
+			};
+			
+			number = currentState[pieceIndex];
+			
+			this.solution.push({
+				empty: emptyPos,
+				piece: piecePos,
+				number: number
+			});
+		}
+		
+		return this.solution;
+	}
+	
+	// Bidirectional BFS algorithm for solving the puzzle
+	solveBidirectionalBFS() {
+		this.setupSolver();
+		this.solution = [];
+		
+		// Create flat representations of the initial and goal states
+		const initialState = this.createFlatGrid();
+		const size = this.grid.length;
+		const goalState = this.createGoalState(size);
+		
+		// Convert states to strings for easier comparison
+		const initialStateStr = JSON.stringify(initialState);
+		const goalStateStr = JSON.stringify(goalState);
+		
+		// Check if initial state is already the goal state
+		if (initialStateStr === goalStateStr) {
+			return [];
+		}
+		
+		// Create maps for tracking paths
+		const forwardParent = new Map();
+		const backwardParent = new Map();
+		const forwardMoves = new Map();
+		const backwardMoves = new Map();
+		
+		// Create queues for the forward and backward searches
+		const forwardQueue = [initialState];
+		const backwardQueue = [goalState];
+		
+		// Create sets to track visited states
+		const forwardVisited = new Set([initialStateStr]);
+		const backwardVisited = new Set([goalStateStr]);
+		
+		// Find the meeting point of the two searches
+		let meetingState = null;
+		
+		while (forwardQueue.length > 0 && backwardQueue.length > 0) {
+			// Expand forward search (one level at a time for breadth-first)
+			const forwardLevel = forwardQueue.length;
+			for (let i = 0; i < forwardLevel; i++) {
+				const currentState = forwardQueue.shift();
+				const currentStateStr = JSON.stringify(currentState);
+				
+				// Get all possible next states
+				const neighbors = this.getNeighbors(currentState);
+				
+				for (const neighbor of neighbors) {
+					const neighborStr = JSON.stringify(neighbor);
+					
+					// Skip if already visited in forward direction
+					if (forwardVisited.has(neighborStr)) continue;
+					
+					// Mark as visited
+					forwardVisited.add(neighborStr);
+					
+					// Store parent relationship and move
+					forwardParent.set(neighborStr, currentState);
+					forwardMoves.set(neighborStr, this.createMove(currentState, neighbor, size));
+					
+					// Check if this state has been visited by backward search
+					if (backwardVisited.has(neighborStr)) {
+						meetingState = neighbor;
+						break;
+					}
+					
+					// Add to queue
+					forwardQueue.push(neighbor);
+				}
+				
+				if (meetingState) break;
+			}
+			
+			if (meetingState) break;
+			
+			// Expand backward search (one level at a time for breadth-first)
+			const backwardLevel = backwardQueue.length;
+			for (let i = 0; i < backwardLevel; i++) {
+				const currentState = backwardQueue.shift();
+				const currentStateStr = JSON.stringify(currentState);
+				
+				// Get all possible previous states (neighbors in reverse)
+				const neighbors = this.getNeighbors(currentState);
+				
+				for (const neighbor of neighbors) {
+					const neighborStr = JSON.stringify(neighbor);
+					
+					// Skip if already visited in backward direction
+					if (backwardVisited.has(neighborStr)) continue;
+					
+					// Mark as visited
+					backwardVisited.add(neighborStr);
+					
+					// Store parent relationship and move
+					backwardParent.set(neighborStr, currentState);
+					backwardMoves.set(neighborStr, this.createMove(neighbor, currentState, size));
+					
+					// Check if this state has been visited by forward search
+					if (forwardVisited.has(neighborStr)) {
+						meetingState = neighbor;
+						break;
+					}
+					
+					// Add to queue
+					backwardQueue.push(neighbor);
+				}
+				
+				if (meetingState) break;
+			}
+			
+			if (meetingState) break;
+		}
+		
+		// No solution found
+		if (!meetingState) {
+			console.log("No solution found with Bidirectional BFS");
+			return null;
+		}
+		
+		// Reconstruct the path
+		return this.reconstructBidirectionalPath(
+			meetingState,
+			forwardParent,
+			backwardParent,
+			forwardMoves,
+			backwardMoves,
+			initialState,
+			goalState,
+			size
+		);
+	}
+	
+	// Helper to create a move description between two states
+	createMove(fromState, toState, size) {
+		// Find the empty space in both states
+		const emptyFromIndex = fromState.indexOf("");
+		const emptyToIndex = toState.indexOf("");
+		
+		// The piece that moved is at emptyToIndex in fromState
+		const pieceValue = fromState[emptyToIndex];
+		
+		// Create position objects
+		const emptyPos = {
+			x: emptyFromIndex % size,
+			y: Math.floor(emptyFromIndex / size)
+		};
+		
+		const piecePos = {
+			x: emptyToIndex % size,
+			y: Math.floor(emptyToIndex / size)
+		};
+		
+		return {
+			empty: emptyPos,
+			piece: piecePos,
+			number: pieceValue
+		};
+	}
+	
+	// Reconstruct the complete path from initial to goal
+	reconstructBidirectionalPath(
+		meetingState,
+		forwardParent,
+		backwardParent,
+		forwardMoves,
+		backwardMoves,
+		initialState,
+		goalState,
+		size
+	) {
+		// Get the meeting state as string
+		const meetingStateStr = JSON.stringify(meetingState);
+		
+		// Build the forward path (from initial to meeting point)
+		const forwardPath = [];
+		let currentStateStr = meetingStateStr;
+		
+		while (currentStateStr && currentStateStr !== JSON.stringify(initialState)) {
+			const move = forwardMoves.get(currentStateStr);
+			if (move) forwardPath.unshift(move);
+			
+			const parentState = forwardParent.get(currentStateStr);
+			if (!parentState) break;
+			currentStateStr = JSON.stringify(parentState);
+		}
+		
+		// Build the backward path (from meeting point to goal)
+		const backwardPath = [];
+		currentStateStr = meetingStateStr;
+		
+		while (currentStateStr && currentStateStr !== JSON.stringify(goalState)) {
+			const move = backwardMoves.get(currentStateStr);
+			if (move) backwardPath.push(move);
+			
+			const parentState = backwardParent.get(currentStateStr);
+			if (!parentState) break;
+			currentStateStr = JSON.stringify(parentState);
+		}
+		
+		// Combine the paths
+		this.solution = [...forwardPath, ...backwardPath];
+		return this.solution;
+	}
 }
