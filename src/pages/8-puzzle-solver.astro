@@ -316,7 +316,7 @@ import Layout from '../layouts/Layout.astro';
     emptyIndex = totalTiles - 1;
     
     // Perform random moves
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 60; i++) {
       const possibleMoves = getPossibleMoves(puzzle, emptyIndex);
       const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
       
