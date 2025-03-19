@@ -27,6 +27,15 @@ import Layout from '../layouts/Layout.astro';
             <!-- Grid will be populated by JavaScript -->
           </div>
 
+          <!-- Loading Spinner (initially hidden) -->
+          <div id="loading-spinner" class="hidden absolute inset-0 bg-white/90 flex flex-col items-center justify-center z-10 rounded-lg">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
+            <div class="mt-4 text-center">
+              <p class="text-primary font-medium text-lg">Calculating solution...</p>
+              <p id="calculation-status" class="text-gray-500 text-sm mt-2">This may take a few moments depending on puzzle size and complexity</p>
+            </div>
+          </div>
+
           <!-- Controls -->
           <div class="flex justify-center space-x-4">
             <button
@@ -153,8 +162,8 @@ import Layout from '../layouts/Layout.astro';
   import { NPuzzleSolver } from '/js/NPuzzleSolver.js';
   
   // Puzzle state management
-  let rows = 4;
-  let cols = 4;
+  const rows = 4;
+  const cols = 4;
   let puzzle = [];
   let emptyIndex = -1;
   let selectedIndex = null;
@@ -168,6 +177,8 @@ import Layout from '../layouts/Layout.astro';
   const resetBtn = document.getElementById('reset-btn');
   const solutionSteps = document.getElementById('solution-steps');
   const stepsList = document.getElementById('steps-list');
+  const loadingSpinner = document.getElementById('loading-spinner');
+  const calculationStatus = document.getElementById('calculation-status');
 
   // Save puzzle state to localStorage
   function savePuzzleState(isSolving) {
@@ -365,77 +376,125 @@ import Layout from '../layouts/Layout.astro';
   }
 
   // Solve puzzle
-  function solve() {
+  async function solve() {
+    console.group('Puzzle Solving Process');
+    console.log('Current puzzle state:', puzzle);
+    
+    // Show loading spinner
+    loadingSpinner.classList.remove('hidden');
+    calculationStatus.textContent = "Preparing puzzle data...";
+    
     // Save state before solving
     savePuzzleState(true);
     
-    const grid = create2dArray(puzzle, cols);
+    // Disable buttons while calculating
+    shuffleBtn.disabled = true;
+    solveBtn.disabled = true;
+    resetBtn.disabled = true;
     
-    // Get the selected algorithm
-    const algorithmSelect = document.getElementById('algorithm-select');
-    const selectedAlgorithm = algorithmSelect.value;
-    
-    // Create solver instance
-    const solver = new NPuzzleSolver(grid);
+    // Use setTimeout to allow the UI to update before the heavy calculation begins
+    setTimeout(async () => {
+      try {
+        const grid = create2dArray(puzzle, cols);
+        
+        // Get the selected algorithm
+        const algorithmSelect = document.getElementById('algorithm-select');
+        const selectedAlgorithm = algorithmSelect.value;
+        
+        calculationStatus.textContent = `Initializing ${selectedAlgorithm} algorithm...`;
+        
+        // Create solver instance
+        const solver = new NPuzzleSolver(grid);
 
-    // Solve using the selected algorithm
-    let solution;
-    switch (selectedAlgorithm) {
-      case 'pattern':
-        solution = solver.solve(); // Default pattern solving
-        break;
-      case 'astar-manhattan':
-        solution = solver.solveAStarManhattan();
-        break;
-      case 'astar-misplaced':
-        solution = solver.solveAStarMisplaced();
-        break;
-      case 'astar-linear':
-        solution = solver.solveAStarLinearConflict();
-        break;
-      case 'idastar':
-        solution = solver.solveIDAStar();
-        break;
-      case 'bidirectional':
-        solution = solver.solveBidirectionalBFS();
-        break;
-      default:
-        solution = solver.solve(); // Default to pattern solving
-    }
+        calculationStatus.textContent = "Searching for solution path...";
+        
+        // Solve using the selected algorithm
+        let solution;
+        switch (selectedAlgorithm) {
+          case 'pattern':
+            solution = solver.solve(); // Default pattern solving
+            break;
+          case 'astar-manhattan':
+            solution = solver.solveAStarManhattan();
+            break;
+          case 'astar-misplaced':
+            solution = solver.solveAStarMisplaced();
+            break;
+          case 'astar-linear':
+            solution = solver.solveAStarLinearConflict();
+            break;
+          case 'idastar':
+            solution = solver.solveIDAStar();
+            break;
+          case 'bidirectional':
+            solution = solver.solveBidirectionalBFS();
+            break;
+          default:
+            solution = solver.solve(); // Default to pattern solving
+        }
+        
+        console.log('Solution found:', solution);
 
-    if (!solution) {
-      alert('No solution found! Please try a different configuration.');
-      return;
-    }
+        // Hide loading spinner
+        loadingSpinner.classList.add('hidden');
 
-    // Convert solution to steps list
-    const steps = solution.map(move => {
-      const pieceNum = move.number
-      let direction = '';
-      
-      // Determine direction
-      if (move.empty.y < move.piece.y) direction = 'down';
-      else if (move.empty.y > move.piece.y) direction = 'up';
-      else if (move.empty.x < move.piece.x) direction = 'left';
-      else if (move.empty.x > move.piece.x) direction = 'right';
+        if (!solution) {
+          console.error('No solution found!');
+          alert('No solution found! Please try a different configuration.');
+          
+          // Re-enable buttons if no solution found
+          shuffleBtn.disabled = false;
+          solveBtn.disabled = false;
+          resetBtn.disabled = false;
+          
+          console.groupEnd();
+          return;
+        }
 
-      return {
-        moved: pieceNum,
-        direction: direction
-      };
-    });
+        calculationStatus.textContent = `Solution found! ${solution.length} moves required.`;
 
-    displaySolution(steps);
-    executeSolution(solution);
+        // Convert solution to steps list
+        const steps = solution.map(move => {
+          const pieceNum = move.number
+          let direction = '';
+          
+          // Determine direction
+          if (move.empty.y < move.piece.y) direction = 'down';
+          else if (move.empty.y > move.piece.y) direction = 'up';
+          else if (move.empty.x < move.piece.x) direction = 'left';
+          else if (move.empty.x > move.piece.x) direction = 'right';
+
+          return {
+            moved: pieceNum,
+            direction: direction
+          };
+        });
+
+        console.log('Solution steps:', steps);
+        console.groupEnd();
+        displaySolution(steps);
+        executeSolution(solution);
+      } catch (error) {
+        // Handle any errors
+        console.error('Error solving puzzle:', error);
+        alert('Error: Could not solve puzzle - ' + error.message);
+        
+        // Update calculation status
+        calculationStatus.textContent = `Error: ${error.message || 'Could not solve puzzle'}`;
+        
+        // Hide loading spinner and re-enable buttons in case of error
+        loadingSpinner.classList.add('hidden');
+        shuffleBtn.disabled = false;
+        solveBtn.disabled = false;
+        resetBtn.disabled = false;
+      }
+    }, 50); // Small delay to let the UI update
   }
 
   // Execute solution animation
   async function executeSolution(solution) {
-    // Disable buttons during animation
-    shuffleBtn.disabled = true;
-    solveBtn.disabled = true;
-    resetBtn.disabled = true;
-
+    // Buttons are already disabled from the solve function
+    
     // For each step
     for (const move of solution) {
       // Get number and position to move
@@ -468,16 +527,16 @@ import Layout from '../layouts/Layout.astro';
         const newTop = newRow * (tileSize + 8);
         const newLeft = newCol * (tileSize + 8);
 
-        // Apply animation
-        if (pieceNum !== 0) {
+        // Apply animation, only move tiles with numbers
+        if (pieceNum !== 0) {  // Ensure it's not the empty tile
           tileToMove.style.transform = `translate(${newLeft}px, ${newTop}px)`;
-          // Wait for animation
+          // Wait for animation to complete
           await new Promise(resolve => setTimeout(resolve, animationDelay));
         }
       }
     }
 
-    // Reinitialize grid when done
+    // Reinitialize grid after animation completes
     initializeGrid();
     
     // Clear saved state
@@ -543,10 +602,25 @@ import Layout from '../layouts/Layout.astro';
 
   // Initialize
   initializePuzzle();
+  positionLoadingSpinner();
   
-  // Add window resize event listener
+  // Add window resize event listener to update tile size
   window.addEventListener('resize', () => {
     updateGrid();
     initializeGrid();
+    positionLoadingSpinner();
   });
+
+  // Position the loading spinner to cover the puzzle area
+  function positionLoadingSpinner() {
+    const puzzleContainer = document.querySelector('.bg-white.p-6.rounded-lg.shadow-sm.border.border-gray-200');
+    if (puzzleContainer) {
+      loadingSpinner.style.position = 'absolute';
+      loadingSpinner.style.top = '0';
+      loadingSpinner.style.left = '0';
+      loadingSpinner.style.width = '100%';
+      loadingSpinner.style.height = '100%';
+      puzzleContainer.style.position = 'relative';
+    }
+  }
 </script> 
