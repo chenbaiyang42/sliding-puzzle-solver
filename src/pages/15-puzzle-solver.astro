@@ -37,38 +37,45 @@ import Layout from '../layouts/Layout.astro';
           </div>
 
           <!-- Controls -->
-          <div class="flex justify-center space-x-4">
-            <button
-              id="shuffle-btn"
-              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Shuffle
-            </button>
-            <div>
-              <select
-                id="algorithm-select"
+          <div class="flex flex-wrap justify-center gap-2 sm:gap-4">
+            <!-- First row for mobile -->
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <button
+                id="shuffle-btn"
                 class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                <option value="pattern" selected>Pattern Solving</option>
-                <option value="astar-manhattan">A* (Manhattan Distance)</option>
-                <option value="astar-misplaced">A* (Misplaced Tiles)</option>
-                <option value="astar-linear">A* (Linear Conflict)</option>
-                <option value="idastar">IDA*</option>
-                <option value="bidirectional">Bidirectional BFS</option>
-              </select>
+                Shuffle
+              </button>
+              <div>
+                <select
+                  id="algorithm-select"
+                  class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  <option value="pattern" selected>Pattern Solving</option>
+                  <option value="astar-manhattan">A* (Manhattan Distance)</option>
+                  <option value="astar-misplaced">A* (Misplaced Tiles)</option>
+                  <option value="astar-linear">A* (Linear Conflict)</option>
+                  <option value="idastar">IDA*</option>
+                  <option value="bidirectional">Bidirectional BFS</option>
+                </select>
+              </div>
+              <button
+                id="solve-btn"
+                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Solve
+              </button>
             </div>
-            <button
-              id="solve-btn"
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Solve
-            </button>
-            <button
-              id="reset-btn"
-              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Reset
-            </button>
+            
+            <!-- Second row for mobile -->
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <button
+                id="reset-btn"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </div>
 

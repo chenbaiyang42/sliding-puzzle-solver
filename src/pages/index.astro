@@ -13,7 +13,7 @@ import Layout from '../layouts/Layout.astro';
         <span class="block text-primary">Sliding Puzzle Solver</span>
       </h1>
       <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-        The <strong>Sliding Puzzle solver</strong> has challenged minds for generations. Our advanced solver uses sophisticated algorithms to find the optimal path to solve any sliding puzzle configuration, from the classic 15 puzzle to custom-sized challenges.
+        The <strong>Sliding Puzzle solver</strong> uses sophisticated algorithms to find the optimal path to solve any sliding puzzle configuration, from the classic 15 puzzle to custom-sized challenges.
       </p>
     </div>
 
@@ -63,50 +63,57 @@ import Layout from '../layouts/Layout.astro';
           </div>
 
           <!-- Controls -->
-          <div class="flex justify-center space-x-4">
-            <button
-              id="shuffle-btn"
-              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Shuffle
-            </button>
-            <div>
-              <select
-                id="algorithm-select"
+          <div class="flex flex-wrap justify-center gap-2 sm:gap-4">
+            <!-- First row for mobile -->
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <button
+                id="shuffle-btn"
                 class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                <option value="pattern" selected>Pattern Solving</option>
-                <option value="astar-manhattan">A* (Manhattan Distance)</option>
-                <option value="astar-misplaced">A* (Misplaced Tiles)</option>
-                <option value="astar-linear">A* (Linear Conflict)</option>
-                <option value="idastar">IDA*</option>
-                <option value="bidirectional">Bidirectional BFS</option>
-              </select>
+                Shuffle
+              </button>
+              <div>
+                <select
+                  id="algorithm-select"
+                  class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                >
+                  <option value="pattern" selected>Pattern Solving</option>
+                  <option value="astar-manhattan">A* (Manhattan Distance)</option>
+                  <option value="astar-misplaced">A* (Misplaced Tiles)</option>
+                  <option value="astar-linear">A* (Linear Conflict)</option>
+                  <option value="idastar">IDA*</option>
+                  <option value="bidirectional">Bidirectional BFS</option>
+                </select>
+              </div>
+              <button
+                id="solve-btn"
+                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Solve
+              </button>
             </div>
-            <button
-              id="solve-btn"
-              class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Solve
-            </button>
-            <button
-              id="reset-btn"
-              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Reset
-            </button>
-            <button
-              id="speed-up-btn"
-              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Speed Up
-            </button>
-            <button
-              id="speed-down-btn"
-              class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Slow Down
-            </button>
+            
+            <!-- Second row for mobile -->
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <button
+                id="reset-btn"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Reset
+              </button>
+              <button
+                id="speed-up-btn"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Speed Up
+              </button>
+              <button
+                id="speed-down-btn"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Slow Down
+              </button>
+            </div>
           </div>
         </div>
 
