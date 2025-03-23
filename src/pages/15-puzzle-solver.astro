@@ -479,7 +479,7 @@ import Layout from '../layouts/Layout.astro';
 
         console.log('Solution steps:', steps);
         console.groupEnd();
-        displaySolution(steps);
+        displaySolution(steps, selectedAlgorithm);
         executeSolution(solution);
       } catch (error) {
         // Handle any errors
@@ -556,11 +556,16 @@ import Layout from '../layouts/Layout.astro';
   }
 
   // Display solution
-  function displaySolution(steps) {
+  function displaySolution(steps, algorithm) {
     solutionSteps.classList.remove('hidden');
     stepsList.innerHTML = '';
     
     let solutionText = `${steps.length} steps in total:\n\n`;
+    
+    // Add a note about Pattern Solving algorithm when it's used
+    if (algorithm === 'pattern') {
+      solutionText += `Note: Pattern Solving is not always optimal. Try other algorithms like A* or IDA* for potentially shorter solutions.\n\n`;
+    }
     
     steps.forEach((step, index) => {
       solutionText += `${index + 1}. Move ${step.moved} ${step.direction}\n`;
