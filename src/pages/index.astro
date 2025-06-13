@@ -2,26 +2,46 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
+<style>
+  /* Ensure puzzle grid is optimally sized for first screen viewing */
+  #puzzle-grid {
+    aspect-ratio: 1;
+    max-height: calc(100vh - 300px); /* Reserve space for header, title, and controls */
+  }
+  
+  @media (max-height: 600px) {
+    #puzzle-grid {
+      max-height: calc(100vh - 250px);
+    }
+  }
+  
+  @media (max-height: 500px) {
+    #puzzle-grid {
+      max-height: calc(100vh - 200px);
+    }
+  }
+</style>
+
 <Layout 
   title="Sliding Puzzle Solver - Find the optimal solution"
   canonical="https://sliding-puzzle-solver.com/"
 >
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Hero Section -->
     <div class="text-center">
-      <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+      <h1 class="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl">
         <span class="block text-primary">Sliding Puzzle Solver</span>
       </h1>
-      <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-        The <strong>Sliding Puzzle solver</strong> uses sophisticated algorithms to find the optimal path to solve any sliding puzzle configuration, from the classic 15 puzzle to custom-sized challenges.
+      <p class="mt-2 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-3 md:text-xl md:max-w-2xl">
+        The <strong>Sliding Puzzle solver</strong> uses sophisticated algorithms to find the optimal path to solve any sliding puzzle configuration, from the classic 15 puzzle to custom-sized challenges;
       </p>
     </div>
 
     <!-- Solver Section -->
-    <div class="mt-12">
-      <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-8">Try Our Advanced Sliding Puzzle Solver</h2>
-      <div class="max-w-2xl mx-auto">
-        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+    <div class="mt-8">
+      <h2 class="text-2xl font-extrabold text-gray-900 text-center mb-6">Try Our Advanced Sliding Puzzle Solver</h2>
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
           <!-- Size Selection Controls -->
           <div class="flex justify-center space-x-4 mb-6">
             <div>
@@ -49,8 +69,12 @@ import Layout from '../layouts/Layout.astro';
               </select>
             </div>
           </div>
-          <div id="puzzle-grid" class="grid gap-2 mb-6 relative">
-            <!-- Grid will be populated by JavaScript -->
+          
+          <!-- Puzzle Grid Container with better responsive sizing -->
+          <div class="flex justify-center mb-6">
+            <div id="puzzle-grid" class="grid gap-2 relative w-full max-w-sm sm:max-w-md md:max-w-lg">
+              <!-- Grid will be populated by JavaScript -->
+            </div>
           </div>
 
           <!-- Loading Spinner (initially hidden) -->
@@ -322,17 +346,16 @@ import Layout from '../layouts/Layout.astro';
   const loadingSpinner = document.getElementById('loading-spinner');
   const calculationStatus = document.getElementById('calculation-status');
 
-  // Position the loading spinner to cover the puzzle area
+  // 定位加载旋转器
   function positionLoadingSpinner() {
-    const puzzleContainer = document.querySelector('.bg-white.p-6.rounded-lg.shadow-sm.border.border-gray-200');
-    if (puzzleContainer) {
-      loadingSpinner.style.position = 'absolute';
-      loadingSpinner.style.top = '0';
-      loadingSpinner.style.left = '0';
-      loadingSpinner.style.width = '100%';
-      loadingSpinner.style.height = '100%';
-      puzzleContainer.style.position = 'relative';
-    }
+    const gridContainer = grid.parentElement; // The flex container
+    const gridRect = gridContainer.getBoundingClientRect();
+    const containerRect = gridContainer.parentElement.getBoundingClientRect();
+    
+    loadingSpinner.style.left = `${gridRect.left - containerRect.left}px`;
+    loadingSpinner.style.top = `${gridRect.top - containerRect.top}px`;
+    loadingSpinner.style.width = `${gridRect.width}px`;
+    loadingSpinner.style.height = `${gridRect.height}px`;
   }
 
   // 保存拼图状态到localStorage
@@ -403,10 +426,22 @@ import Layout from '../layouts/Layout.astro';
 
   // 更新网格布局
   function updateGrid() {
-    // Calculate tile size based on grid width and number of columns
-    const gridWidth = grid.offsetWidth;
-    tileSize = (gridWidth - (cols - 1) * 8) / cols; // 8px is the gap size
-    grid.style.height = `${rows * tileSize + (rows - 1) * 8}px`; // Set grid height
+    // Calculate tile size based on available space and screen size
+    const container = grid.parentElement;
+    const containerWidth = container.offsetWidth;
+    
+    // Get the computed max-height from CSS
+    const computedStyle = window.getComputedStyle(grid);
+    const maxHeight = parseInt(computedStyle.maxHeight);
+    
+    // Calculate tile size based on both width and height constraints
+    const maxTileSizeByWidth = (containerWidth - (cols - 1) * 8) / cols;
+    const maxTileSizeByHeight = (maxHeight - (rows - 1) * 8) / rows;
+    
+    tileSize = Math.max(30, Math.min(maxTileSizeByWidth, maxTileSizeByHeight));
+    
+    grid.style.width = `${cols * tileSize + (cols - 1) * 8}px`;
+    grid.style.height = `${rows * tileSize + (rows - 1) * 8}px`;
   }
 
   // 初始化拼图网格
