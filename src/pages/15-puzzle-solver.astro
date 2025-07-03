@@ -237,6 +237,7 @@ import Layout from '../layouts/Layout.astro';
       emptyIndex,
       animationDelay,
       backgroundImage,
+      showNumbers,
       isSolving
     };
     localStorage.setItem('puzzleState15', JSON.stringify(state));
@@ -252,6 +253,7 @@ import Layout from '../layouts/Layout.astro';
         emptyIndex = state.emptyIndex;
         animationDelay = state.animationDelay || 200;
         backgroundImage = state.backgroundImage || '/earth.jpg';
+        showNumbers = state.showNumbers !== undefined ? state.showNumbers : true;
         return true;
       } catch (error) {
         console.error('Error loading puzzle state:', error);
@@ -668,10 +670,37 @@ import Layout from '../layouts/Layout.astro';
     clearPuzzleState();
   }
 
+  // Toggle numbers display
+  function toggleNumbers() {
+    showNumbers = !showNumbers;
+    initializeGrid();
+    
+    // Save state
+    savePuzzleState(false);
+  }
+
+  // Handle image upload
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        backgroundImage = e.target.result;
+        initializeGrid();
+        
+        // Save state with new background
+        savePuzzleState(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   // Event listeners
   shuffleBtn.addEventListener('click', shuffle);
   solveBtn.addEventListener('click', solve);
   resetBtn.addEventListener('click', reset);
+  toggleNumbersBtn.addEventListener('click', toggleNumbers);
+  imageUpload.addEventListener('change', handleImageUpload);
 
   // Initialize
   initializePuzzle();
