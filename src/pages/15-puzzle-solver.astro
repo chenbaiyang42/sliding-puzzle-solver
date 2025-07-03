@@ -2,6 +2,26 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
+<style>
+  /* Ensure tiles have proper styling for background image */
+  .puzzle-tile {
+    position: relative;
+    overflow: hidden;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+  }
+
+  .puzzle-tile:hover {
+    transform: scale(1.02);
+    transition: transform 0.1s ease;
+  }
+
+  .puzzle-tile.selected {
+    z-index: 10;
+    box-shadow: 0 0 0 4px #facc15;
+  }
+</style>
+
 <Layout 
   title="15 Puzzle Solver - Find the optimal solution for 4x4 puzzles"
   description="Our advanced 15 Puzzle Solver uses sophisticated algorithms to find the optimal solution path for any 4x4 sliding puzzle configuration."
@@ -75,6 +95,21 @@ import Layout from '../layouts/Layout.astro';
               >
                 Reset
               </button>
+              <button
+                id="toggle-numbers-btn"
+                class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              >
+                Show/Hide Numbers
+              </button>
+              <label for="image-upload" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer">
+                Upload Image
+                <input
+                  id="image-upload"
+                  type="file"
+                  accept="image/*"
+                  class="hidden"
+                />
+              </label>
             </div>
           </div>
         </div>
@@ -176,16 +211,22 @@ import Layout from '../layouts/Layout.astro';
   let selectedIndex = null;
   let tileSize = 0; // Store tile size for animations
   let animationDelay = 200; // Initial animation delay in ms
+  let backgroundImage = '/earth.jpg'; // Default background image
   
   // Get key DOM elements
   const grid = document.getElementById('puzzle-grid');
   const shuffleBtn = document.getElementById('shuffle-btn');
   const solveBtn = document.getElementById('solve-btn');
   const resetBtn = document.getElementById('reset-btn');
+  const toggleNumbersBtn = document.getElementById('toggle-numbers-btn');
   const solutionSteps = document.getElementById('solution-steps');
   const stepsList = document.getElementById('steps-list');
   const loadingSpinner = document.getElementById('loading-spinner');
   const calculationStatus = document.getElementById('calculation-status');
+  const imageUpload = document.getElementById('image-upload');
+
+  // Toggle numbers display state
+  let showNumbers = true;
 
   // Save puzzle state to localStorage
   function savePuzzleState(isSolving) {
@@ -195,6 +236,7 @@ import Layout from '../layouts/Layout.astro';
       puzzle,
       emptyIndex,
       animationDelay,
+      backgroundImage,
       isSolving
     };
     localStorage.setItem('puzzleState15', JSON.stringify(state));
@@ -209,6 +251,7 @@ import Layout from '../layouts/Layout.astro';
         puzzle = state.puzzle;
         emptyIndex = state.emptyIndex;
         animationDelay = state.animationDelay || 200;
+        backgroundImage = state.backgroundImage || '/earth.jpg';
         return true;
       } catch (error) {
         console.error('Error loading puzzle state:', error);
@@ -250,7 +293,7 @@ import Layout from '../layouts/Layout.astro';
     grid.innerHTML = '';
     puzzle.forEach((num, index) => {
       const tile = document.createElement('div');
-      tile.className = 'absolute bg-primary text-white flex items-center justify-center text-2xl font-bold rounded cursor-pointer hover:bg-primary/90 transition-all duration-200';
+      tile.className = 'absolute puzzle-tile text-white flex items-center justify-center text-2xl font-bold rounded cursor-pointer hover:opacity-80 transition-all duration-200 border-2 border-white/20';
       
       // Calculate position
       const row = Math.floor(index / cols);
@@ -264,19 +307,37 @@ import Layout from '../layouts/Layout.astro';
       
       // If empty tile, add special style
       if (num === 0) {
-        tile.classList.remove('bg-primary');
-        tile.classList.add('bg-transparent');
-        tile.classList.remove('text-white');
-        tile.classList.remove('hover:bg-primary/90');
+        tile.style.backgroundColor = 'transparent';
+        tile.style.backgroundImage = 'none';
+        tile.style.border = 'none';
+        tile.classList.remove('puzzle-tile');
+      } else {
+        // Set background image for each tile
+        // Calculate the original position of this tile (where the number should be)
+        const originalRow = Math.floor((num - 1) / cols);
+        const originalCol = (num - 1) % cols;
+        
+        // Set background image
+        tile.style.backgroundImage = `url(${backgroundImage})`;
+        tile.style.backgroundSize = `${cols * tileSize}px ${rows * tileSize}px`;
+        tile.style.backgroundPosition = `-${originalCol * tileSize}px -${originalRow * tileSize}px`;
+        tile.style.backgroundRepeat = 'no-repeat';
+        
+        // Set overlay based on showNumbers state
+        if (showNumbers) {
+          tile.style.boxShadow = 'inset 0 0 0 1000px rgba(0,0,0,0.3)';
+        } else {
+          tile.style.boxShadow = 'none';
+        }
       }
       
       // If selected, add highlight style
       if (index === selectedIndex) {
-        tile.classList.add('ring-4', 'ring-yellow-400');
+        tile.classList.add('selected');
       }
       
       // Set tile text (empty for blank)
-      tile.textContent = num === 0 ? '' : num;
+      tile.textContent = (num === 0 || !showNumbers) ? '' : num;
       
       tile.dataset.index = index;
       tile.dataset.number = num;
