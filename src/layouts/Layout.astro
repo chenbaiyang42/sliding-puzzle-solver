@@ -1,4 +1,6 @@
 ---
+import { createT, getLocaleFromPathname, localeLabels, normalizeLocale } from '../i18n';
+
 interface Props {
   title: string;
   description?: string;
@@ -6,10 +8,21 @@ interface Props {
 }
 
 const { title, description = "Sliding Puzzle Solver - Find the optimal solution for your sliding puzzle game", canonical } = Astro.props;
+const locale = normalizeLocale(getLocaleFromPathname(Astro.url.pathname));
+const t = createT(locale);
+
+const prefix = locale === 'en' ? '' : `/${locale}`;
+const path = Astro.url.pathname;
+const rawPath = locale === 'en' ? path : path.replace(new RegExp(`^/${locale}(?=/|$)`), '') || '/';
+
+function withLocale(nextLocale: string) {
+  const p = nextLocale === 'en' ? '' : `/${nextLocale}`;
+  return `${p}${rawPath === '/' ? '/' : rawPath}`;
+}
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -29,13 +42,27 @@ const { title, description = "Sliding Puzzle Solver - Find the optimal solution 
         <div class="flex justify-between h-16">
           <div class="flex">
             <div class="flex-shrink-0 flex items-center">
-              <a href="/" class="text-2xl font-bold text-primary">Sliding Puzzle Solver</a>
+              <a href={`${prefix}/`} class="text-2xl font-bold text-primary">{t('site.name')}</a>
             </div>
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <a href="/8-puzzle-solver" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-primary hover:text-gray-900">8 Puzzle Solver</a>
-              <a href="/15-puzzle-solver" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-primary hover:text-gray-900">15 Puzzle Solver</a>
-              <a href="/qa" class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-primary hover:text-gray-900">Q&A</a>
+              <a href={`${prefix}/8-puzzle-solver`} class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-primary hover:text-gray-900">{t('nav.8')}</a>
+              <a href={`${prefix}/15-puzzle-solver`} class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-primary hover:text-gray-900">{t('nav.15')}</a>
+              <a href={`${prefix}/qa`} class="inline-flex items-center px-1 pt-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:border-primary hover:text-gray-900">{t('nav.qa')}</a>
             </div>
+          </div>
+          <div class="hidden sm:flex items-center">
+            <label for="lang-select" class="sr-only">{t('lang.label')}</label>
+            <select
+              id="lang-select"
+              class="ml-4 px-2 py-1 border border-gray-300 rounded-md text-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              onchange="window.location.href=this.value"
+            >
+              {Object.entries(localeLabels).map(([code, label]) => (
+                <option value={withLocale(code)} selected={code === locale}>
+                  {label}
+                </option>
+              ))}
+            </select>
           </div>
           <!-- Mobile menu button -->
           <div class="flex items-center sm:hidden">
@@ -57,9 +84,23 @@ const { title, description = "Sliding Puzzle Solver - Find the optimal solution 
       <!-- Mobile menu, show/hide based on menu state -->
       <div id="mobile-menu" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-          <a href="/8-puzzle-solver" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-primary hover:text-gray-900">8 Puzzle Solver</a>
-          <a href="/15-puzzle-solver" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-primary hover:text-gray-900">15 Puzzle Solver</a>
-          <a href="/qa" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-primary hover:text-gray-900">Q&A</a>
+          <a href={`${prefix}/8-puzzle-solver`} class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-primary hover:text-gray-900">{t('nav.8')}</a>
+          <a href={`${prefix}/15-puzzle-solver`} class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-primary hover:text-gray-900">{t('nav.15')}</a>
+          <a href={`${prefix}/qa`} class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 hover:border-primary hover:text-gray-900">{t('nav.qa')}</a>
+          <div class="px-3 py-2">
+            <label for="lang-select-mobile" class="block text-xs text-gray-500 mb-1">{t('lang.label')}</label>
+            <select
+              id="lang-select-mobile"
+              class="w-full px-2 py-2 border border-gray-300 rounded-md text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              onchange="window.location.href=this.value"
+            >
+              {Object.entries(localeLabels).map(([code, label]) => (
+                <option value={withLocale(code)} selected={code === locale}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </header>
@@ -74,7 +115,7 @@ const { title, description = "Sliding Puzzle Solver - Find the optimal solution 
             <svg class="h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            <span class="text-gray-500 text-sm">Welcome to send suggestions：</span>
+            <span class="text-gray-500 text-sm">{t('footer.suggest')}：</span>
             <a href="mailto:support@sliding-puzzle-solver.com" class="text-primary hover:underline text-sm">
               support@sliding-puzzle-solver.com
             </a>
@@ -82,12 +123,12 @@ const { title, description = "Sliding Puzzle Solver - Find the optimal solution 
           
           <!-- Links -->
           <div class="flex items-center space-x-6">
-            <a href="/terms-en" class="text-gray-500 hover:text-primary text-sm transition-colors">
-              Terms
+            <a href={`${prefix}/terms-en`} class="text-gray-500 hover:text-primary text-sm transition-colors">
+              {t('nav.terms')}
             </a>
             <span class="text-gray-300">|</span>
-            <a href="/privacy-en" class="text-gray-500 hover:text-primary text-sm transition-colors">
-              Privacy
+            <a href={`${prefix}/privacy-en`} class="text-gray-500 hover:text-primary text-sm transition-colors">
+              {t('nav.privacy')}
             </a>
           </div>
           

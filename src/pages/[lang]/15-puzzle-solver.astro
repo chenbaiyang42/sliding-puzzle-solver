@@ -1,15 +1,21 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { createT, normalizeLocale } from '../i18n';
+import Layout from '../../layouts/Layout.astro';
+import { createT, locales, normalizeLocale } from '../../i18n';
 
-const locale = normalizeLocale(Astro.url.pathname.split('/').filter(Boolean)[0]);
+export function getStaticPaths() {
+  return locales
+    .filter((l) => l !== 'en')
+    .map((lang) => ({ params: { lang } }));
+}
+
+const locale = normalizeLocale(Astro.params.lang);
 const t = createT(locale);
 const prefix = locale === 'en' ? '' : `/${locale}`;
 
 const ui = {
-  heroTitle: t('p8.hero.title'),
-  heroSubtitle: t('p8.hero.subtitle'),
-  tryTitle: t('p8.try.title'),
+  heroTitle: t('p15.hero.title'),
+  heroSubtitle: t('p15.hero.subtitle'),
+  tryTitle: t('p15.try.title'),
   algPattern: t('alg.pattern'),
   algAstarManhattan: t('alg.astarManhattan'),
   algAstarMisplaced: t('alg.astarMisplaced'),
@@ -64,9 +70,9 @@ const ui = {
 </style>
 
 <Layout 
-  title="8 Puzzle Solver - Find the optimal solution for 3x3 puzzles"
-  description="Our specialized 8 Puzzle Solver uses advanced algorithms to find the optimal solution path for any 3x3 sliding puzzle configuration."
-  canonical={`https://sliding-puzzle-solver.com${prefix}/8-puzzle-solver`}
+  title="15 Puzzle Solver - Find the optimal solution for 4x4 puzzles"
+  description="Our advanced 15 Puzzle Solver uses sophisticated algorithms to find the optimal solution path for any 4x4 sliding puzzle configuration."
+  canonical={`https://sliding-puzzle-solver.com${prefix}/15-puzzle-solver`}
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <!-- Hero Section -->
@@ -167,53 +173,73 @@ const ui = {
       </div>
     </div>
 
-    <!-- Understanding 8 Puzzle Section -->
+    <!-- Understanding 15 Puzzle Section -->
     <div class="mt-16">
-      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Understanding the 8 Puzzle</h2>
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Understanding the 15 Puzzle</h2>
       <div class="mt-10 max-w-3xl mx-auto">
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <p class="text-lg text-gray-600 mb-4">
-            The <strong>8 Puzzle</strong> is a simpler variant of the classic sliding puzzle, featuring a 3×3 grid with 8 numbered tiles and one empty space. The goal is to arrange the tiles in numerical order by sliding them into the empty position.
+            The <strong>15 Puzzle</strong> is one of the most iconic sliding puzzles, featuring a 4×4 grid with 15 numbered tiles and one empty space. The goal is to arrange the tiles in numerical order by sliding them into the empty position.
           </p>
           
-          <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Key Features of Our 8 Puzzle Solver</h3>
+          <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Key Features of Our 15 Puzzle Solver</h3>
           <ul class="list-disc pl-6 space-y-2">
-            <li>Multiple solving algorithms with different performance characteristics</li>
-            <li>Real-time visualization of the solution process</li>
-            <li>Step-by-step solution guide that's easy to follow</li>
-            <li>Optimized specifically for the 3×3 grid of the 8 Puzzle</li>
-            <li>Educational insights into the solving process</li>
+            <li>Multiple solving algorithms to handle even the most challenging configurations</li>
+            <li>Animated solution visualization to help you understand each move</li>
+            <li>Detailed step-by-step solution guide</li>
+            <li>Performance optimized for the 15 puzzle's unique challenges</li>
+            <li>Educational explanations of solving techniques</li>
           </ul>
           
-          <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Algorithm Performance for 8 Puzzle</h3>
+          <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">Algorithm Performance for 15 Puzzle</h3>
           <p class="text-lg text-gray-600 mb-4">
-            For the 8 Puzzle, different algorithms offer various trade-offs between solution time and optimality:
+            The 15 puzzle is significantly more complex than the 8 puzzle, with different performance characteristics for each algorithm:
           </p>
           <ul class="list-disc pl-6 space-y-2">
-            <li><strong>A* with Manhattan Distance:</strong> Usually finds solutions in under 0.5 seconds for most 8 puzzle configurations</li>
-            <li><strong>Pattern Solving:</strong> Very fast but may produce slightly longer solution paths</li>
-            <li><strong>IDA*:</strong> Guarantees the shortest solution but may take longer for complex configurations</li>
-            <li><strong>Bidirectional BFS:</strong> Excellent balance of speed and solution quality for the 8 puzzle</li>
+            <li><strong>Pattern Solving:</strong> Most efficient for 15 puzzles, typically 1-2 seconds</li>
+            <li><strong>A* with Manhattan Distance:</strong> Good balance of speed and optimality, usually 3-10 seconds</li>
+            <li><strong>A* with Linear Conflict:</strong> More optimal solutions but can take 10-30 seconds for complex configurations</li>
+            <li><strong>IDA*:</strong> Guarantees optimal solution but may be impractical for very complex puzzles (60+ seconds)</li>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- Educational Value Section -->
+    <!-- Historical Context Section -->
     <div class="mt-16">
-      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Why Practice with the 8 Puzzle?</h2>
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">The Legacy of the 15 Puzzle</h2>
+      <div class="mt-10 max-w-3xl mx-auto">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+          <p class="text-lg text-gray-600 mb-4">
+            The 15 puzzle was invented in the 1870s and quickly became a global sensation. American puzzle-maker Sam Loyd offered a $1,000 prize for solving a particularly difficult 15 puzzle configuration, which was later proven to be impossible.
+          </p>
+          
+          <p class="text-lg text-gray-600 mb-4">
+            This famous puzzle has been extensively studied in mathematics and computer science, becoming a benchmark problem for testing search algorithms. The 15 puzzle demonstrates important mathematical concepts such as permutation parity and state space complexity.
+          </p>
+          
+          <p class="text-lg text-gray-600">
+            Our <strong>15 Puzzle Solver</strong> builds on this rich history, using modern computational methods to tackle this classic challenge. It can even detect whether a configuration is solvable - something that puzzled mathematicians for years after the puzzle's invention.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expert Tips Section -->
+    <div class="mt-16">
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center">Expert Tips for Solving the 15 Puzzle</h2>
       <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2">
         <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div class="text-lg font-medium text-gray-900">Perfect for Beginners</div>
+          <div class="text-lg font-medium text-gray-900">Solve Row by Row</div>
           <p class="mt-2 text-gray-500">
-            The 8 puzzle provides an ideal introduction to sliding puzzles. With fewer tiles than the 15 puzzle, it's easier to understand the core strategies while still offering a meaningful challenge.
+            The most efficient manual solving technique is to solve the puzzle row by row, starting from the top. Our <strong>15 Puzzle Solver</strong> can demonstrate this technique.
           </p>
         </div>
 
         <div class="relative p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div class="text-lg font-medium text-gray-900">Learn Fundamental Techniques</div>
+          <div class="text-lg font-medium text-gray-900">Learn Patterns for Difficult Positions</div>
           <p class="mt-2 text-gray-500">
-            Master the basic solving patterns and principles with the 8 puzzle before tackling more complex configurations. The skills you develop here transfer directly to larger puzzles.
+            Certain tile arrangements require specific movement patterns to solve. Study the solutions provided by our <strong>15 Puzzle Solver</strong> to learn these essential patterns.
           </p>
         </div>
       </div>
@@ -225,8 +251,8 @@ const ui = {
   import { NPuzzleSolver } from '/js/NPuzzleSolver.js';
   
   // Puzzle state management
-  const rows = 3;
-  const cols = 3;
+  const rows = 4;
+  const cols = 4;
   let puzzle = [];
   let emptyIndex = -1;
   let selectedIndex = null;
@@ -258,14 +284,15 @@ const ui = {
       emptyIndex,
       animationDelay,
       backgroundImage,
+      showNumbers,
       isSolving
     };
-    localStorage.setItem('puzzleState8', JSON.stringify(state));
+    localStorage.setItem('puzzleState15', JSON.stringify(state));
   }
 
   // Load puzzle state from localStorage
   function loadPuzzleState() {
-    const savedState = localStorage.getItem('puzzleState8');
+    const savedState = localStorage.getItem('puzzleState15');
     if (savedState) {
       try {
         const state = JSON.parse(savedState);
@@ -273,6 +300,7 @@ const ui = {
         emptyIndex = state.emptyIndex;
         animationDelay = state.animationDelay || 200;
         backgroundImage = state.backgroundImage || '/earth.jpg';
+        showNumbers = state.showNumbers !== undefined ? state.showNumbers : true;
         return true;
       } catch (error) {
         console.error('Error loading puzzle state:', error);
@@ -284,7 +312,7 @@ const ui = {
 
   // Clear saved puzzle state
   function clearPuzzleState() {
-    localStorage.removeItem('puzzleState8');
+    localStorage.removeItem('puzzleState15');
   }
 
   // Initialize puzzle
@@ -404,16 +432,6 @@ const ui = {
     }
   }
 
-  // Check if two positions are adjacent
-  function isAdjacent(pos1, pos2) {
-    const row1 = Math.floor(pos1 / cols);
-    const col1 = pos1 % cols;
-    const row2 = Math.floor(pos2 / cols);
-    const col2 = pos2 % cols;
-    return (Math.abs(row1 - row2) === 1 && col1 === col2) ||
-           (Math.abs(col1 - col2) === 1 && row1 === row2);
-  }
-
   // Get possible moves
   function getPossibleMoves(state, emptyPos) {
     const moves = [];
@@ -436,7 +454,7 @@ const ui = {
     emptyIndex = totalTiles - 1;
     
     // Perform random moves
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 50; i++) {
       const possibleMoves = getPossibleMoves(puzzle, emptyIndex);
       const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
       
@@ -624,17 +642,12 @@ const ui = {
         const newTop = newRow * (tileSize + 8);
         const newLeft = newCol * (tileSize + 8);
 
-        // Apply animation
-        tileToMove.style.transform = `translate(${newLeft}px, ${newTop}px)`;
-        
-        // Update background image position to keep image part correct
-        const originalRow = Math.floor((pieceNum - 1) / cols);
-        const originalCol = (pieceNum - 1) % cols;
-        tileToMove.style.backgroundImage = `url(${backgroundImage})`;
-        tileToMove.style.backgroundPosition = `-${originalCol * tileSize}px -${originalRow * tileSize}px`;
-        
-        // Wait for animation to complete
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // Apply animation, only move tiles with numbers
+        if (pieceNum !== 0) {  // Ensure it's not the empty tile
+          tileToMove.style.transform = `translate(${newLeft}px, ${newTop}px)`;
+          // Wait for animation to complete
+          await new Promise(resolve => setTimeout(resolve, animationDelay));
+        }
       }
     }
 
@@ -706,39 +719,25 @@ const ui = {
   function toggleNumbers() {
     showNumbers = !showNumbers;
     initializeGrid();
-    toggleNumbersBtn.textContent = ui.showHideNumbers;
+    
+    // Save state
+    savePuzzleState(false);
   }
 
   // Handle image upload
   function handleImageUpload(event) {
     const file = event.target.files[0];
-    if (!file) return;
-
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      alert('Please select a valid image file.');
-      return;
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        backgroundImage = e.target.result;
+        initializeGrid();
+        
+        // Save state with new background
+        savePuzzleState(false);
+      };
+      reader.readAsDataURL(file);
     }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      // Update background image
-      backgroundImage = e.target.result;
-      
-      // Reset puzzle to default order
-      reset();
-      
-      // Save new state
-      savePuzzleState(false);
-      
-      console.log('Custom image uploaded and puzzle reset');
-    };
-    
-    reader.onerror = function() {
-      alert('Error reading the image file. Please try again.');
-    };
-    
-    reader.readAsDataURL(file);
   }
 
   // Event listeners
@@ -751,9 +750,6 @@ const ui = {
   // Initialize
   initializePuzzle();
   positionLoadingSpinner();
-  
-  // Initialize toggle button text
-  toggleNumbersBtn.textContent = ui.showHideNumbers;
   
   // Add window resize event listener to update tile size
   window.addEventListener('resize', () => {
@@ -774,4 +770,5 @@ const ui = {
       puzzleContainer.style.position = 'relative';
     }
   }
-</script> 
+</script>
+

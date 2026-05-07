@@ -1,0 +1,114 @@
+---
+import { createT, type Locale } from '../../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = createT(locale);
+---
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl">
+      <span class="block text-primary">{t('privacy.hero.title')}</span>
+    </h1>
+    <p class="mt-3 max-w-2xl mx-auto text-xl text-gray-500">
+      {t('privacy.hero.subtitle')}
+    </p>
+  </div>
+
+  <div class="prose prose-lg max-w-none">
+    <div class="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">{t('privacy.title')}</h2>
+      
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s1.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s1.body')}</p>
+      <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <li><strong>{t('privacy.s1.l1.label')}</strong> {t('privacy.s1.l1.value')}</li>
+        <li><strong>{t('privacy.s1.l2.label')}</strong> {t('privacy.s1.l2.value')}</li>
+        <li><strong>{t('privacy.s1.l3.label')}</strong> {t('privacy.s1.l3.value')}</li>
+      </ul>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s2.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s2.body')}</p>
+      <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <li>{t('privacy.s2.l1')}</li>
+        <li>{t('privacy.s2.l2')}</li>
+        <li>{t('privacy.s2.l3')}</li>
+        <li>{t('privacy.s2.l4')}</li>
+        <li>{t('privacy.s2.l5')}</li>
+      </ul>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s3.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s3.body')}</p>
+      <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <li>{t('privacy.s3.l1')}</li>
+        <li>{t('privacy.s3.l2')}</li>
+        <li>{t('privacy.s3.l3')}</li>
+        <li>{t('privacy.s3.l4')}</li>
+      </ul>
+      <p class="text-gray-700 mb-4">{t('privacy.s3.p2')}</p>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s4.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s4.body')}</p>
+      <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <li>{t('privacy.s4.l1')}</li>
+        <li>{t('privacy.s4.l2')}</li>
+        <li>{t('privacy.s4.l3')}</li>
+        <li>{t('privacy.s4.l4')}</li>
+      </ul>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s5.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s5.body')}</p>
+      <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <li>{t('privacy.s5.l1')}</li>
+        <li>{t('privacy.s5.l2')}</li>
+        <li>{t('privacy.s5.l3')}</li>
+        <li>{t('privacy.s5.l4')}</li>
+      </ul>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s6.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s6.body')}</p>
+      <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <li>{t('privacy.s6.l1')}</li>
+        <li>{t('privacy.s6.l2')}</li>
+        <li>{t('privacy.s6.l3')}</li>
+      </ul>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s7.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s7.body')}</p>
+      <ul class="list-disc pl-6 mb-4 text-gray-700">
+        <li>{t('privacy.s7.l1')}</li>
+        <li>{t('privacy.s7.l2')}</li>
+        <li>{t('privacy.s7.l3')}</li>
+        <li>{t('privacy.s7.l4')}</li>
+        <li>{t('privacy.s7.l5')}</li>
+      </ul>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s8.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s8.body')}</p>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s9.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s9.body')}</p>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s10.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s10.body')}</p>
+
+      <h3 class="text-xl font-semibold text-gray-900 mt-8 mb-4">{t('privacy.s11.title')}</h3>
+      <p class="text-gray-700 mb-4">{t('privacy.s11.body')}</p>
+      <p class="text-gray-700">
+        {t('privacy.s11.emailLabel')}{' '}
+        <a href="mailto:support@sliding-puzzle-solver.com" class="text-primary hover:underline">support@sliding-puzzle-solver.com</a>
+      </p>
+
+      <div class="mt-12 pt-6 border-t border-gray-200">
+        <p class="text-sm text-gray-500">
+          {t('privacy.updated')}: {new Date().toLocaleDateString('en-US')}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

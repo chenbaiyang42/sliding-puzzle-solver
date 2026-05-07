@@ -1,0 +1,610 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { createT, locales, normalizeLocale } from '../../i18n';
+
+export function getStaticPaths() {
+  return locales
+    .filter((l) => l !== 'en')
+    .map((lang) => ({ params: { lang } }));
+}
+
+const locale = normalizeLocale(Astro.params.lang);
+const t = createT(locale);
+const prefix = locale === 'en' ? '' : `/${locale}`;
+
+const ui = {
+  heroTitle: t('home.hero.title'),
+  heroSubtitle: t('home.hero.subtitle'),
+  tryTitle: t('home.try.title'),
+  rowsLabel: t('home.controls.rows'),
+  colsLabel: t('home.controls.cols'),
+  algPattern: t('alg.pattern'),
+  algAstarManhattan: t('alg.astarManhattan'),
+  algAstarMisplaced: t('alg.astarMisplaced'),
+  algAstarLinear: t('alg.astarLinear'),
+  algIda: t('alg.ida'),
+  algBibfs: t('alg.bibfs'),
+  initAlg: t('solver.initAlg'),
+  solutionFound: t('solver.solutionFound'),
+  patternNote: t('solver.patternNote'),
+  calculating: t('solver.calculating'),
+  calcHint: t('solver.calcHint'),
+  preparing: t('solver.preparing'),
+  searching: t('solver.searching'),
+  noSolution: t('solver.noSolution'),
+  copySolution: t('solver.copySolution'),
+  copied: t('solver.copied'),
+  copyFailed: t('solver.copyFailed'),
+  shuffle: t('common.shuffle'),
+  solve: t('common.solve'),
+  reset: t('common.reset'),
+  speedUp: t('common.speedUp'),
+  slowDown: t('common.slowDown'),
+  showHideNumbers: t('common.showHideNumbers'),
+  uploadImage: t('common.uploadImage'),
+  solutionSteps: t('solver.solutionSteps'),
+};
+---
+
+<style>
+  /* Ensure puzzle grid is optimally sized for first screen viewing */
+  #puzzle-grid {
+    aspect-ratio: 1;
+    max-height: calc(100vh - 300px);
+    border-radius: 8px;
+    overflow: visible;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
+  @media (max-height: 600px) {
+    #puzzle-grid {
+      max-height: calc(100vh - 250px);
+    }
+  }
+  
+  @media (max-height: 500px) {
+    #puzzle-grid {
+      max-height: calc(100vh - 200px);
+    }
+  }
+
+  /* Ensure tiles have proper styling for background image */
+  .puzzle-tile {
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    font-weight: bold;
+  }
+
+  .puzzle-tile:hover {
+    transform: scale(1.02);
+    transition: transform 0.1s ease;
+  }
+
+  .puzzle-tile.selected {
+    z-index: 10;
+    box-shadow: 0 0 0 4px #facc15;
+  }
+</style>
+
+<Layout 
+  title="Sliding Puzzle Solver - Find the optimal solution"
+  canonical={`https://sliding-puzzle-solver.com${prefix}/`}
+>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="text-center">
+      <h1 class="text-3xl tracking-tight font-extrabold text-gray-900 sm:text-4xl md:text-5xl">
+        <span class="block text-primary">{ui.heroTitle}</span>
+      </h1>
+      <p class="mt-2 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-3 md:text-xl md:max-w-2xl">
+        {ui.heroSubtitle}
+      </p>
+    </div>
+
+    <div class="mt-8">
+      <h2 class="text-2xl font-extrabold text-gray-900 text-center mb-6">{ui.tryTitle}</h2>
+      <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
+          <!-- Size Selection Controls -->
+          <div class="flex justify-center space-x-4 mb-6">
+            <div>
+              <label for="rows" class="block text-sm font-medium text-gray-700">{ui.rowsLabel}</label>
+              <select id="rows" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+              </select>
+            </div>
+            <div>
+              <label for="cols" class="block text-sm font-medium text-gray-700">{ui.colsLabel}</label>
+              <select id="cols" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
+                <option value="3">3</option>
+                <option value="4" selected>4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Puzzle Grid Container -->
+          <div class="flex justify-center mb-6">
+            <div id="puzzle-grid" class="grid gap-2 relative w-full max-w-sm sm:max-w-md md:max-w-lg"></div>
+          </div>
+
+          <!-- Loading Spinner -->
+          <div id="loading-spinner" class="hidden absolute inset-0 bg-white/90 flex flex-col items-center justify-center z-10 rounded-lg">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
+            <div class="mt-4 text-center">
+              <p class="text-primary font-medium text-lg">{ui.calculating}</p>
+              <p id="calculation-status" class="text-gray-500 text-sm mt-2">{ui.calcHint}</p>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="flex flex-wrap justify-center gap-2 sm:gap-4">
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <button id="shuffle-btn" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                {ui.shuffle}
+              </button>
+              <div>
+                <select id="algorithm-select" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                  <option value="pattern" selected>{ui.algPattern}</option>
+                  <option value="astar-manhattan">{ui.algAstarManhattan}</option>
+                  <option value="astar-misplaced">{ui.algAstarMisplaced}</option>
+                  <option value="astar-linear">{ui.algAstarLinear}</option>
+                  <option value="idastar">{ui.algIda}</option>
+                  <option value="bidirectional">{ui.algBibfs}</option>
+                </select>
+              </div>
+              <button id="solve-btn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                {ui.solve}
+              </button>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <button id="reset-btn" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                {ui.reset}
+              </button>
+              <button id="speed-up-btn" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                {ui.speedUp}
+              </button>
+              <button id="speed-down-btn" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                {ui.slowDown}
+              </button>
+              <button id="toggle-numbers-btn" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                {ui.showHideNumbers}
+              </button>
+              <label for="image-upload" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer">
+                {ui.uploadImage}
+                <input id="image-upload" type="file" accept="image/*" class="hidden" />
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div id="solution-steps" class="mt-8 hidden">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">{ui.solutionSteps}</h2>
+          <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+            <div id="steps-list" class="space-y-4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script type="module" define:vars={{ ui }}>
+  import { NPuzzleSolver } from '/js/NPuzzleSolver.js';
+  
+  // 拼图状态管理
+  let rows = 4;
+  let cols = 4;
+  let puzzle = [];
+  let emptyIndex = -1;
+  let selectedIndex = null;
+  let tileSize = 0; // Store tile size for animations
+  let animationDelay = 200; // Initial animation delay in ms
+  let backgroundImage = '/earth.jpg'; // Default background image
+  
+  // 获取页面上的关键DOM元素
+  const grid = document.getElementById('puzzle-grid');
+  const shuffleBtn = document.getElementById('shuffle-btn');
+  const solveBtn = document.getElementById('solve-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const speedUpBtn = document.getElementById('speed-up-btn');
+  const speedDownBtn = document.getElementById('speed-down-btn');
+  const toggleNumbersBtn = document.getElementById('toggle-numbers-btn');
+  const solutionSteps = document.getElementById('solution-steps');
+  const stepsList = document.getElementById('steps-list');
+  const rowsSelect = document.getElementById('rows');
+  const colsSelect = document.getElementById('cols');
+  const loadingSpinner = document.getElementById('loading-spinner');
+  const calculationStatus = document.getElementById('calculation-status');
+  const imageUpload = document.getElementById('image-upload');
+
+  // 切换数字显示的状态
+  let showNumbers = true;
+
+  function positionLoadingSpinner() {
+    const gridContainer = grid.parentElement;
+    const gridRect = gridContainer.getBoundingClientRect();
+    const containerRect = gridContainer.parentElement.getBoundingClientRect();
+    
+    loadingSpinner.style.left = `${gridRect.left - containerRect.left}px`;
+    loadingSpinner.style.top = `${gridRect.top - containerRect.top}px`;
+    loadingSpinner.style.width = `${gridRect.width}px`;
+    loadingSpinner.style.height = `${gridRect.height}px`;
+  }
+
+  function savePuzzleState(isSolving) {
+    const state = { rows, cols, puzzle, emptyIndex, animationDelay, backgroundImage, isSolving };
+    localStorage.setItem('puzzleState', JSON.stringify(state));
+  }
+
+  function loadPuzzleState() {
+    const savedState = localStorage.getItem('puzzleState');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        rows = state.rows;
+        cols = state.cols;
+        puzzle = state.puzzle;
+        emptyIndex = state.emptyIndex;
+        animationDelay = state.animationDelay || 200;
+        backgroundImage = state.backgroundImage || '/earth.jpg';
+        rowsSelect.value = rows;
+        colsSelect.value = cols;
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  }
+
+  function clearPuzzleState() {
+    localStorage.removeItem('puzzleState');
+  }
+
+  function initializePuzzle() {
+    if (!loadPuzzleState()) {
+      const totalTiles = rows * cols;
+      puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+      emptyIndex = totalTiles - 1;
+    }
+    updateGrid();
+    initializeGrid();
+  }
+
+  function updateGrid() {
+    const container = grid.parentElement;
+    const containerWidth = container.offsetWidth;
+    const computedStyle = window.getComputedStyle(grid);
+    const maxHeight = parseInt(computedStyle.maxHeight);
+    const maxTileSizeByWidth = (containerWidth - (cols - 1) * 8) / cols;
+    const maxTileSizeByHeight = (maxHeight - (rows - 1) * 8) / rows;
+    tileSize = Math.max(30, Math.min(maxTileSizeByWidth, maxTileSizeByHeight));
+    grid.style.width = `${cols * tileSize + (cols - 1) * 8}px`;
+    grid.style.height = `${rows * tileSize + (rows - 1) * 8}px`;
+  }
+
+  function initializeGrid() {
+    grid.innerHTML = '';
+    puzzle.forEach((num, index) => {
+      const tile = document.createElement('div');
+      tile.className = 'absolute puzzle-tile text-white flex items-center justify-center text-2xl font-bold rounded cursor-pointer hover:opacity-80 transition-all duration-200 border-2 border-white/20';
+      const row = Math.floor(index / cols);
+      const col = index % cols;
+      const top = row * (tileSize + 8);
+      const left = col * (tileSize + 8);
+      tile.style.width = `${tileSize}px`;
+      tile.style.height = `${tileSize}px`;
+      tile.style.transform = `translate(${left}px, ${top}px)`;
+
+      if (num === 0) {
+        tile.style.backgroundColor = 'transparent';
+        tile.style.backgroundImage = 'none';
+        tile.style.border = 'none';
+        tile.classList.remove('puzzle-tile');
+      } else {
+        const originalRow = Math.floor((num - 1) / cols);
+        const originalCol = (num - 1) % cols;
+        tile.style.backgroundImage = `url(${backgroundImage})`;
+        tile.style.backgroundSize = `${cols * tileSize}px ${rows * tileSize}px`;
+        tile.style.backgroundPosition = `-${originalCol * tileSize}px -${originalRow * tileSize}px`;
+        tile.style.backgroundRepeat = 'no-repeat';
+        tile.style.boxShadow = showNumbers ? 'inset 0 0 0 1000px rgba(0,0,0,0.3)' : 'none';
+      }
+
+      if (index === selectedIndex) tile.classList.add('selected');
+      tile.textContent = (num === 0 || !showNumbers) ? '' : num;
+      tile.dataset.index = index;
+      tile.dataset.number = num;
+      tile.addEventListener('click', () => handleTileClick(index));
+      grid.appendChild(tile);
+    });
+  }
+
+  function handleTileClick(index) {
+    if (selectedIndex !== null) {
+      if (selectedIndex === index) {
+        selectedIndex = null;
+        initializeGrid();
+        return;
+      }
+      [puzzle[selectedIndex], puzzle[index]] = [puzzle[index], puzzle[selectedIndex]];
+      if (puzzle[selectedIndex] === 0) emptyIndex = selectedIndex;
+      else if (puzzle[index] === 0) emptyIndex = index;
+      selectedIndex = null;
+      initializeGrid();
+      savePuzzleState(false);
+    } else {
+      selectedIndex = index;
+      initializeGrid();
+    }
+  }
+
+  function getPossibleMoves(emptyPos) {
+    const moves = [];
+    const row = Math.floor(emptyPos / cols);
+    const col = emptyPos % cols;
+    if (row > 0) moves.push(emptyPos - cols);
+    if (row < rows - 1) moves.push(emptyPos + cols);
+    if (col > 0) moves.push(emptyPos - 1);
+    if (col < cols - 1) moves.push(emptyPos + 1);
+    return moves;
+  }
+
+  function shuffle() {
+    const totalTiles = rows * cols;
+    puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+    emptyIndex = totalTiles - 1;
+    for (let i = 0; i < 50; i++) {
+      const possibleMoves = getPossibleMoves(emptyIndex);
+      const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+      puzzle[emptyIndex] = puzzle[randomMove];
+      puzzle[randomMove] = 0;
+      emptyIndex = randomMove;
+    }
+    initializeGrid();
+    savePuzzleState(false);
+  }
+
+  function create2dArray(array, size) {
+    let result = [];
+    for (let i = 0; i < array.length; i++) {
+      if (i % size === 0) result.push([]);
+      result[Math.floor(i / size)][i % size] = array[i] === 0 ? '' : array[i];
+    }
+    return result;
+  }
+
+  async function solve() {
+    loadingSpinner.classList.remove('hidden');
+    calculationStatus.textContent = ui.preparing;
+    savePuzzleState(true);
+
+    shuffleBtn.disabled = true;
+    solveBtn.disabled = true;
+    resetBtn.disabled = true;
+    rowsSelect.disabled = true;
+    colsSelect.disabled = true;
+
+    setTimeout(async () => {
+      try {
+        const grid2d = create2dArray(puzzle, cols);
+        const selectedAlgorithm = document.getElementById('algorithm-select').value;
+        const algorithmLabels = {
+          'pattern': ui.algPattern,
+          'astar-manhattan': ui.algAstarManhattan,
+          'astar-misplaced': ui.algAstarMisplaced,
+          'astar-linear': ui.algAstarLinear,
+          'idastar': ui.algIda,
+          'bidirectional': ui.algBibfs,
+        };
+        calculationStatus.textContent = ui.initAlg.replace('{alg}', algorithmLabels[selectedAlgorithm] || selectedAlgorithm);
+
+        const solver = new NPuzzleSolver(grid2d);
+        calculationStatus.textContent = ui.searching;
+
+        let solution;
+        switch (selectedAlgorithm) {
+          case 'pattern': solution = solver.solve(); break;
+          case 'astar-manhattan': solution = solver.solveAStarManhattan(); break;
+          case 'astar-misplaced': solution = solver.solveAStarMisplaced(); break;
+          case 'astar-linear': solution = solver.solveAStarLinearConflict(); break;
+          case 'idastar': solution = solver.solveIDAStar(); break;
+          case 'bidirectional': solution = solver.solveBidirectionalBFS(); break;
+          default: solution = solver.solve();
+        }
+
+        loadingSpinner.classList.add('hidden');
+        resetBtn.disabled = false;
+
+        if (!solution) {
+          alert(ui.noSolution);
+          shuffleBtn.disabled = false;
+          solveBtn.disabled = false;
+          rowsSelect.disabled = false;
+          colsSelect.disabled = false;
+          return;
+        }
+
+        const steps = solution.map(move => {
+          const pieceNum = move.number;
+          let direction = '';
+          if (move.empty.y < move.piece.y) direction = 'down';
+          else if (move.empty.y > move.piece.y) direction = 'up';
+          else if (move.empty.x < move.piece.x) direction = 'left';
+          else if (move.empty.x > move.piece.x) direction = 'right';
+          return { moved: pieceNum, direction };
+        });
+
+        displaySolution(steps, selectedAlgorithm);
+        executeSolution(solution);
+      } catch (error) {
+        loadingSpinner.classList.add('hidden');
+        alert('Error: ' + (error?.message ?? 'Could not solve puzzle'));
+        shuffleBtn.disabled = false;
+        solveBtn.disabled = false;
+        resetBtn.disabled = false;
+        rowsSelect.disabled = false;
+        colsSelect.disabled = false;
+      }
+    }, 50);
+  }
+
+  async function executeSolution(solution) {
+    for (const move of solution) {
+      const pieceNum = move.number;
+      const piecePos = move.piece;
+      const emptyPos = move.empty;
+
+      const pieceIndex = piecePos.y * cols + piecePos.x;
+      const nextEmptyIndex = emptyPos.y * cols + emptyPos.x;
+
+      puzzle[nextEmptyIndex] = pieceNum;
+      puzzle[pieceIndex] = 0;
+
+      const tiles = grid.children;
+      let tileToMove;
+      for (const tile of tiles) {
+        if (parseInt(tile.dataset.number) === pieceNum) { tileToMove = tile; break; }
+      }
+
+      if (tileToMove && pieceNum !== 0) {
+        const newRow = Math.floor(nextEmptyIndex / cols);
+        const newCol = nextEmptyIndex % cols;
+        const newTop = newRow * (tileSize + 8);
+        const newLeft = newCol * (tileSize + 8);
+        tileToMove.style.transform = `translate(${newLeft}px, ${newTop}px)`;
+        await new Promise(resolve => setTimeout(resolve, animationDelay));
+      }
+    }
+
+    initializeGrid();
+    clearPuzzleState();
+
+    shuffleBtn.disabled = false;
+    solveBtn.disabled = false;
+    rowsSelect.disabled = false;
+    colsSelect.disabled = false;
+  }
+
+  function displaySolution(steps, algorithm) {
+    solutionSteps.classList.remove('hidden');
+    stepsList.innerHTML = '';
+
+    let solutionText = ui.solutionFound.replace('{moves}', String(steps.length)) + `\n\n`;
+    if (algorithm === 'pattern') {
+      solutionText += `${ui.patternNote}\n\n`;
+    }
+    steps.forEach((step, index) => {
+      solutionText += `${index + 1}. Move ${step.moved}\n`;
+    });
+
+    const textArea = document.createElement('textarea');
+    textArea.value = solutionText;
+    textArea.className = 'w-full h-64 font-mono p-4 border rounded';
+    textArea.readOnly = true;
+
+    const copyButton = document.createElement('button');
+    copyButton.textContent = ui.copySolution;
+    copyButton.className = 'mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary';
+    copyButton.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(solutionText);
+        copyButton.textContent = ui.copied;
+        setTimeout(() => copyButton.textContent = ui.copySolution, 2000);
+      } catch {
+        alert(ui.copyFailed);
+      }
+    };
+
+    stepsList.appendChild(textArea);
+    stepsList.appendChild(copyButton);
+  }
+
+  function reset() {
+    const totalTiles = rows * cols;
+    puzzle = Array.from({ length: totalTiles }, (_, i) => i === totalTiles - 1 ? 0 : i + 1);
+    emptyIndex = totalTiles - 1;
+    selectedIndex = null;
+    initializeGrid();
+    clearPuzzleState();
+  }
+
+  function toggleNumbers() {
+    showNumbers = !showNumbers;
+    initializeGrid();
+    toggleNumbersBtn.textContent = ui.showHideNumbers;
+  }
+
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please select a valid image file.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      backgroundImage = e.target.result;
+      reset();
+      savePuzzleState(false);
+    };
+    reader.onerror = function() {
+      alert('Error reading the image file. Please try again.');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  shuffleBtn.addEventListener('click', shuffle);
+  solveBtn.addEventListener('click', solve);
+  resetBtn.addEventListener('click', reset);
+  toggleNumbersBtn.addEventListener('click', toggleNumbers);
+  imageUpload.addEventListener('change', handleImageUpload);
+
+  speedUpBtn.addEventListener('click', () => {
+    animationDelay = Math.max(100, animationDelay - 100);
+    speedUpBtn.textContent = `${ui.speedUp} (${animationDelay}ms)`;
+    savePuzzleState(false);
+  });
+  
+  speedDownBtn.addEventListener('click', () => {
+    animationDelay += 100;
+    speedDownBtn.textContent = `${ui.slowDown} (${animationDelay}ms)`;
+    savePuzzleState(false);
+  });
+
+  rowsSelect.addEventListener('change', (e) => {
+    rows = parseInt(e.target.value);
+    initializePuzzle();
+    clearPuzzleState();
+  });
+  
+  colsSelect.addEventListener('change', (e) => {
+    cols = parseInt(e.target.value);
+    initializePuzzle();
+    clearPuzzleState();
+  });
+
+  initializePuzzle();
+  positionLoadingSpinner();
+  toggleNumbersBtn.textContent = ui.showHideNumbers;
+
+  window.addEventListener('resize', () => {
+    updateGrid();
+    initializeGrid();
+    positionLoadingSpinner();
+  });
+</script>
+

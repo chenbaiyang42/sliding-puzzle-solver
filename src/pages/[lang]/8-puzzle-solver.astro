@@ -1,8 +1,14 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { createT, normalizeLocale } from '../i18n';
+import Layout from '../../layouts/Layout.astro';
+import { createT, locales, normalizeLocale } from '../../i18n';
 
-const locale = normalizeLocale(Astro.url.pathname.split('/').filter(Boolean)[0]);
+export function getStaticPaths() {
+  return locales
+    .filter((l) => l !== 'en')
+    .map((lang) => ({ params: { lang } }));
+}
+
+const locale = normalizeLocale(Astro.params.lang);
 const t = createT(locale);
 const prefix = locale === 'en' ? '' : `/${locale}`;
 
@@ -404,16 +410,6 @@ const ui = {
     }
   }
 
-  // Check if two positions are adjacent
-  function isAdjacent(pos1, pos2) {
-    const row1 = Math.floor(pos1 / cols);
-    const col1 = pos1 % cols;
-    const row2 = Math.floor(pos2 / cols);
-    const col2 = pos2 % cols;
-    return (Math.abs(row1 - row2) === 1 && col1 === col2) ||
-           (Math.abs(col1 - col2) === 1 && row1 === row2);
-  }
-
   // Get possible moves
   function getPossibleMoves(state, emptyPos) {
     const moves = [];
@@ -774,4 +770,5 @@ const ui = {
       puzzleContainer.style.position = 'relative';
     }
   }
-</script> 
+</script>
+

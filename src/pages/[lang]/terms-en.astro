@@ -1,0 +1,24 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import TermsPage from '../../components/pages/TermsPage.astro';
+import { createT, locales, normalizeLocale } from '../../i18n';
+
+export function getStaticPaths() {
+  return locales
+    .filter((l) => l !== 'en')
+    .map((lang) => ({ params: { lang } }));
+}
+
+const locale = normalizeLocale(Astro.params.lang);
+const t = createT(locale);
+const prefix = locale === 'en' ? '' : `/${locale}`;
+---
+
+<Layout 
+  title={t('terms.meta.title')}
+  description={t('terms.meta.desc')}
+  canonical={`https://sliding-puzzle-solver.com${prefix}/terms-en`}
+>
+  <TermsPage locale={locale} prefix={prefix} />
+</Layout>
+

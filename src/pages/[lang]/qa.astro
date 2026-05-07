@@ -1,0 +1,24 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import QaPage from '../../components/pages/QaPage.astro';
+import { createT, locales, normalizeLocale } from '../../i18n';
+
+export function getStaticPaths() {
+  return locales
+    .filter((l) => l !== 'en')
+    .map((lang) => ({ params: { lang } }));
+}
+
+const locale = normalizeLocale(Astro.params.lang);
+const t = createT(locale);
+const prefix = locale === 'en' ? '' : `/${locale}`;
+---
+
+<Layout 
+  title={t('qa.meta.title')}
+  description={t('qa.meta.desc')}
+  canonical={`https://sliding-puzzle-solver.com${prefix}/qa`}
+>
+  <QaPage locale={locale} />
+</Layout>
+

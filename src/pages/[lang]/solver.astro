@@ -1,8 +1,14 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { normalizeLocale } from '../i18n';
+import Layout from '../../layouts/Layout.astro';
+import { locales, normalizeLocale } from '../../i18n';
 
-const locale = normalizeLocale(Astro.url.pathname.split('/').filter(Boolean)[0]);
+export function getStaticPaths() {
+  return locales
+    .filter((l) => l !== 'en')
+    .map((lang) => ({ params: { lang } }));
+}
+
+const locale = normalizeLocale(Astro.params.lang);
 const prefix = locale === 'en' ? '' : `/${locale}`;
 ---
 
@@ -188,4 +194,5 @@ const prefix = locale === 'en' ? '' : `/${locale}`;
 
   // Initialize
   initializeGrid();
-</script> 
+</script>
+

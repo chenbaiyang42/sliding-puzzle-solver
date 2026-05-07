@@ -1,5 +1,39 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { createT, normalizeLocale } from '../i18n';
+
+const locale = normalizeLocale(Astro.url.pathname.split('/').filter(Boolean)[0]);
+const t = createT(locale);
+const prefix = locale === 'en' ? '' : `/${locale}`;
+
+const ui = {
+  heroTitle: t('p15.hero.title'),
+  heroSubtitle: t('p15.hero.subtitle'),
+  tryTitle: t('p15.try.title'),
+  algPattern: t('alg.pattern'),
+  algAstarManhattan: t('alg.astarManhattan'),
+  algAstarMisplaced: t('alg.astarMisplaced'),
+  algAstarLinear: t('alg.astarLinear'),
+  algIda: t('alg.ida'),
+  algBibfs: t('alg.bibfs'),
+  initAlg: t('solver.initAlg'),
+  solutionFound: t('solver.solutionFound'),
+  patternNote: t('solver.patternNote'),
+  calculating: t('solver.calculating'),
+  calcHint: t('solver.calcHint'),
+  preparing: t('solver.preparing'),
+  searching: t('solver.searching'),
+  noSolution: t('solver.noSolution'),
+  copySolution: t('solver.copySolution'),
+  copied: t('solver.copied'),
+  copyFailed: t('solver.copyFailed'),
+  shuffle: t('common.shuffle'),
+  solve: t('common.solve'),
+  reset: t('common.reset'),
+  showHideNumbers: t('common.showHideNumbers'),
+  uploadImage: t('common.uploadImage'),
+  solutionSteps: t('solver.solutionSteps'),
+};
 ---
 
 <style>
@@ -32,22 +66,22 @@ import Layout from '../layouts/Layout.astro';
 <Layout 
   title="15 Puzzle Solver - Find the optimal solution for 4x4 puzzles"
   description="Our advanced 15 Puzzle Solver uses sophisticated algorithms to find the optimal solution path for any 4x4 sliding puzzle configuration."
-  canonical="https://sliding-puzzle-solver.com/15-puzzle-solver"
+  canonical={`https://sliding-puzzle-solver.com${prefix}/15-puzzle-solver`}
 >
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <!-- Hero Section -->
     <div class="text-center">
       <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-        <span class="block text-primary">15 Puzzle Solver</span>
+        <span class="block text-primary">{ui.heroTitle}</span>
       </h1>
       <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-        Our <strong>15 Puzzle Solver</strong> uses advanced algorithms to find the optimal solution for any 4×4 sliding puzzle configuration. Master the classic game with our powerful solver.
+        {ui.heroSubtitle}
       </p>
     </div>
 
     <!-- Solver Section -->
     <div class="mt-12">
-      <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-8">Try Our 15 Puzzle Solver</h2>
+      <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-8">{ui.tryTitle}</h2>
       <div class="max-w-2xl mx-auto">
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <div id="puzzle-grid" class="grid gap-2 mb-6 relative">
@@ -58,8 +92,8 @@ import Layout from '../layouts/Layout.astro';
           <div id="loading-spinner" class="hidden absolute inset-0 bg-white/90 flex flex-col items-center justify-center z-10 rounded-lg">
             <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-primary"></div>
             <div class="mt-4 text-center">
-              <p class="text-primary font-medium text-lg">Calculating solution...</p>
-              <p id="calculation-status" class="text-gray-500 text-sm mt-2">This may take a few moments depending on puzzle size and complexity</p>
+              <p class="text-primary font-medium text-lg">{ui.calculating}</p>
+              <p id="calculation-status" class="text-gray-500 text-sm mt-2">{ui.calcHint}</p>
             </div>
           </div>
 
@@ -71,26 +105,26 @@ import Layout from '../layouts/Layout.astro';
                 id="shuffle-btn"
                 class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                Shuffle
+                {ui.shuffle}
               </button>
               <div>
                 <select
                   id="algorithm-select"
                   class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 >
-                  <option value="pattern" selected>Pattern Solving</option>
-                  <option value="astar-manhattan">A* (Manhattan Distance)</option>
-                  <option value="astar-misplaced">A* (Misplaced Tiles)</option>
-                  <option value="astar-linear">A* (Linear Conflict)</option>
-                  <option value="idastar">IDA*</option>
-                  <option value="bidirectional">Bidirectional BFS</option>
+                  <option value="pattern" selected>{ui.algPattern}</option>
+                  <option value="astar-manhattan">{ui.algAstarManhattan}</option>
+                  <option value="astar-misplaced">{ui.algAstarMisplaced}</option>
+                  <option value="astar-linear">{ui.algAstarLinear}</option>
+                  <option value="idastar">{ui.algIda}</option>
+                  <option value="bidirectional">{ui.algBibfs}</option>
                 </select>
               </div>
               <button
                 id="solve-btn"
                 class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                Solve
+                {ui.solve}
               </button>
             </div>
             
@@ -100,16 +134,16 @@ import Layout from '../layouts/Layout.astro';
                 id="reset-btn"
                 class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                Reset
+                {ui.reset}
               </button>
               <button
                 id="toggle-numbers-btn"
                 class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                Show/Hide Numbers
+                {ui.showHideNumbers}
               </button>
               <label for="image-upload" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer">
-                Upload Image
+                {ui.uploadImage}
                 <input
                   id="image-upload"
                   type="file"
@@ -123,7 +157,7 @@ import Layout from '../layouts/Layout.astro';
 
         <!-- Solution Steps -->
         <div id="solution-steps" class="mt-8 hidden">
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">Solution Steps</h2>
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">{ui.solutionSteps}</h2>
           <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div id="steps-list" class="space-y-4">
               <!-- Steps will be populated by JavaScript -->
@@ -207,7 +241,7 @@ import Layout from '../layouts/Layout.astro';
   </div>
 </Layout>
 
-<script type="module">
+<script type="module" define:vars={{ ui }}>
   import { NPuzzleSolver } from '/js/NPuzzleSolver.js';
   
   // Puzzle state management
@@ -459,7 +493,7 @@ import Layout from '../layouts/Layout.astro';
     
     // Show loading spinner
     loadingSpinner.classList.remove('hidden');
-    calculationStatus.textContent = "Preparing puzzle data...";
+    calculationStatus.textContent = ui.preparing;
     
     // Save state before solving
     savePuzzleState(true);
@@ -478,12 +512,20 @@ import Layout from '../layouts/Layout.astro';
         const algorithmSelect = document.getElementById('algorithm-select');
         const selectedAlgorithm = algorithmSelect.value;
         
-        calculationStatus.textContent = `Initializing ${selectedAlgorithm} algorithm...`;
+        const algorithmLabels = {
+          'pattern': ui.algPattern,
+          'astar-manhattan': ui.algAstarManhattan,
+          'astar-misplaced': ui.algAstarMisplaced,
+          'astar-linear': ui.algAstarLinear,
+          'idastar': ui.algIda,
+          'bidirectional': ui.algBibfs,
+        };
+        calculationStatus.textContent = ui.initAlg.replace('{alg}', algorithmLabels[selectedAlgorithm] || selectedAlgorithm);
         
         // Create solver instance
         const solver = new NPuzzleSolver(grid);
 
-        calculationStatus.textContent = "Searching for solution path...";
+        calculationStatus.textContent = ui.searching;
         
         // Solve using the selected algorithm
         let solution;
@@ -517,7 +559,7 @@ import Layout from '../layouts/Layout.astro';
 
         if (!solution) {
           console.error('No solution found!');
-          alert('No solution found! Please try a different configuration.');
+          alert(ui.noSolution);
           
           // Re-enable buttons if no solution found
           shuffleBtn.disabled = false;
@@ -528,7 +570,7 @@ import Layout from '../layouts/Layout.astro';
           return;
         }
 
-        calculationStatus.textContent = `Solution found! ${solution.length} moves required.`;
+        calculationStatus.textContent = ui.solutionFound.replace('{moves}', String(solution.length));
 
         // Convert solution to steps list
         const steps = solution.map(move => {
@@ -634,7 +676,7 @@ import Layout from '../layouts/Layout.astro';
     
     // Add a note about Pattern Solving algorithm when it's used
     if (algorithm === 'pattern') {
-      solutionText += `Note: Pattern Solving is not always optimal. Try other algorithms like A* or IDA* for potentially shorter solutions.\n\n`;
+      solutionText += `${ui.patternNote}\n\n`;
     }
     
     steps.forEach((step, index) => {
@@ -647,17 +689,17 @@ import Layout from '../layouts/Layout.astro';
     textArea.readOnly = true;
     
     const copyButton = document.createElement('button');
-    copyButton.textContent = 'Copy Solution';
+    copyButton.textContent = ui.copySolution;
     copyButton.className = 'mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary';
     copyButton.onclick = async () => {
       try {
         await navigator.clipboard.writeText(solutionText);
-        copyButton.textContent = 'Copied!';
+        copyButton.textContent = ui.copied;
         setTimeout(() => {
-          copyButton.textContent = 'Copy Solution';
+          copyButton.textContent = ui.copySolution;
         }, 2000);
       } catch (err) {
-        alert('Failed to copy solution to clipboard');
+        alert(ui.copyFailed);
       }
     };
     
