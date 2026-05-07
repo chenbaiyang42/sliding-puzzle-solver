@@ -8,7 +8,7 @@ import Layout from '../layouts/Layout.astro';
     aspect-ratio: 1;
     max-height: calc(100vh - 300px); /* Reserve space for header, title, and controls */
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
   
@@ -27,6 +27,7 @@ import Layout from '../layouts/Layout.astro';
   /* Ensure tiles have proper styling for background image */
   .puzzle-tile {
     position: relative;
+    box-sizing: border-box;
     overflow: hidden;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     font-weight: bold;
