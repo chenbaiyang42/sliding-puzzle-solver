@@ -15,3 +15,10 @@ dist/
 # IDE files
 .vscode/
 .idea/ 
+
+# local scratch / dev temp files
+temp.txt
+loadPuzzleState.txt
+
+# Cloudflare
+.wrangler/

@@ -14,7 +14,7 @@ A web-based tool that helps you solve sliding puzzle games by providing step-by-
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
+- Node.js (v18 or higher)
 - npm (v7 or higher)
 
 ### Installation
@@ -49,6 +49,21 @@ npm run dev
 - [Astro](https://astro.build/) - The web framework for content-driven websites
 - [Tailwind CSS](https://tailwindcss.com/) - A utility-first CSS framework
 - [TypeScript](https://www.typescriptlang.org/) - JavaScript with syntax for types
+
+## Deployment (Cloudflare Pages)
+
+This site is a fully static Astro build deployed to Cloudflare Pages.
+
+- Build command: `npm run build`
+- Output directory: `dist`
+- Custom domains: `sliding-puzzle-solver.com`, `www.sliding-puzzle-solver.com`
+
+To deploy from the command line (requires `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` in the environment):
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name sliding-puzzle-solver --branch master
+```
 
 ## License
 
